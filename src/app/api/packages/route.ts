@@ -4,7 +4,15 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const packages = await prisma.package.findMany({
-      orderBy: { price: 'asc' }
+      where: { isActive: true },
+      include: {
+        packageActivities: {
+          include: {
+            activityTemplate: true
+          }
+        }
+      },
+      orderBy: { name: 'asc' }
     });
 
     return NextResponse.json(packages);
@@ -28,6 +36,13 @@ export async function POST(request: NextRequest) {
         description,
         maxHours,
         price
+      },
+      include: {
+        packageActivities: {
+          include: {
+            activityTemplate: true
+          }
+        }
       }
     });
 

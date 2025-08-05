@@ -12,20 +12,38 @@ export async function GET() {
       );
     }
 
-    // Get packages for the authenticated user
-    const packages = await prisma.package.findMany({
-      where: { userId },
+    // Get customer packages for the authenticated user
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
       include: {
-        packageActivities: {
+        customers: {
           include: {
-            activityTemplate: true
+            customer_packages: {
+              include: {
+                packages: {
+                  include: {
+                    packageActivities: {
+                      include: {
+                        activityTemplate: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
-      },
-      orderBy: { createdAt: 'desc' }
+      }
     });
 
-    return NextResponse.json(packages);
+    if (!user?.customers) {
+      return NextResponse.json(
+        { error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(user.customers.customer_packages);
   } catch (error) {
     console.error('Failed to fetch customer packages:', error);
     return NextResponse.json(

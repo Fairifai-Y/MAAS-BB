@@ -13,21 +13,29 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const packageId = searchParams.get('packageId');
-    const userIdParam = searchParams.get('userId');
+    const customerPackageId = searchParams.get('customerPackageId');
+    const employeeId = searchParams.get('employeeId');
 
     const where: any = {};
-    if (packageId) where.packageId = packageId;
-    if (userIdParam) where.userId = userIdParam;
+    if (customerPackageId) where.customerPackageId = customerPackageId;
+    if (employeeId) where.employeeId = employeeId;
 
     const activities = await prisma.activity.findMany({
       where,
       include: {
-        package: true,
-        user: true,
-        activityTemplate: true
+        customer_packages: {
+          include: {
+            customers: {
+              include: { users: true }
+            },
+            packages: true
+          }
+        },
+        employees: {
+          include: { users: true }
+        }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { date: 'desc' }
     });
 
     return NextResponse.json(activities);
@@ -50,21 +58,37 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { packageId, activityTemplateId, notes, hoursSpent } = body;
+    const { customerPackageId, description, hours, date, rompslompTaskId } = body;
+
+    // Get employee ID from user
+    const employee = await prisma.employees.findUnique({
+      where: { userId: userId }
+    });
+
+    if (!employee) {
+      return NextResponse.json(
+        { error: 'Employee not found' },
+        { status: 404 }
+      );
+    }
 
     const activity = await prisma.activity.create({
       data: {
-        userId,
-        packageId,
-        activityTemplateId,
-        notes,
-        hoursSpent: hoursSpent || 0,
-        status: 'PENDING'
+        customerPackageId,
+        employeeId: employee.id,
+        description,
+        hours,
+        date: new Date(date),
+        rompslompTaskId
       },
       include: {
-        package: true,
-        user: true,
-        activityTemplate: true
+        customer_packages: {
+          include: {
+            customers: { include: { users: true } },
+            packages: true
+          }
+        },
+        employees: { include: { users: true } }
       }
     });
 
