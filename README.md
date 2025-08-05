@@ -1,36 +1,240 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MAAS Platform - Managed Application as a Service
 
-## Getting Started
+Een professioneel platform voor het beheren van IT-services met flexibele pakketten, uren tracking en externe integraties.
 
-First, run the development server:
+## 🚀 Functionaliteiten
 
+### Voor Klanten
+- **Dashboard**: Overzicht van actieve pakketten en gebruikte uren
+- **Pakket Beheer**: Inzicht in MAAS pakketten (XS, S, M, L, XL, XXL)
+- **Activiteiten Tracking**: Real-time overzicht van afgeronde acties
+- **Betalingen**: Geïntegreerde Stripe/Buckaroo betalingen
+
+### Voor Admins
+- **Admin Dashboard**: Statistieken en overzicht van alle klanten
+- **Pakket Beheer**: Aanmaken en beheren van MAAS pakketten
+- **Werknemer Beheer**: Uren registratie en activiteiten tracking
+- **Rapportages**: Uitgebreide statistieken en analyses
+
+### Integraties
+- **Rompslomp.nl**: API koppeling voor project management
+- **Stripe**: Recurring betalingen en facturering
+- **Buckaroo**: Alternatieve betalingsmethode
+- **Clerk**: Authenticatie en gebruikersbeheer
+
+## 🛠️ Technische Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: PostgreSQL met Prisma ORM
+- **Authentication**: Clerk
+- **Payments**: Stripe & Buckaroo
+- **External APIs**: Rompslomp.nl
+- **State Management**: Zustand
+- **Charts**: Chart.js & React-Chartjs-2
+
+## 📦 Installatie
+
+### 1. Clone de repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd maas-platform
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Installeer dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Configureer environment variabelen
+Kopieer `env.example` naar `.env.local` en vul de benodigde waarden in:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/maas_db"
 
-## Learn More
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
 
-To learn more about Next.js, take a look at the following resources:
+# Stripe
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Rompslomp.nl API
+ROMPLOMP_API_KEY=your_rompslomp_api_key
+ROMPLOMP_API_URL=https://api.rompslomp.nl
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-## Deploy on Vercel
+### 4. Database setup
+```bash
+# Genereer Prisma client
+npx prisma generate
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Run database migrations
+npx prisma db push
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# (Optioneel) Seed de database met initiële data
+npx prisma db seed
+```
+
+### 5. Start de development server
+```bash
+npm run dev
+```
+
+De applicatie is nu beschikbaar op `http://localhost:3000`
+
+## 🗄️ Database Schema
+
+### Hoofdmodellen
+
+#### Users & Roles
+- **User**: Basis gebruikersinformatie met Clerk integratie
+- **Customer**: Klant-specifieke informatie
+- **Employee**: Werknemer informatie met uurtarief
+- **Admin**: Admin gebruikers met permissions
+
+#### Packages & Billing
+- **Package**: MAAS pakketten (XS-XXL) met prijzen en urenlimieten
+- **CustomerPackage**: Klant-specifieke pakket abonnementen
+- **Invoice**: Facturen en betalingen
+
+#### Activities & Tracking
+- **Activity**: Werknemer activiteiten met urenregistratie
+- **Rompslomp Integration**: Externe task tracking
+
+## 🔐 Authenticatie & Rollen
+
+### Gebruikersrollen
+1. **Customer**: Klanten die MAAS pakketten gebruiken
+2. **Employee**: Werknemers die uren registreren
+3. **Admin**: Beheerders met volledige toegang
+
+### Toegangscontrole
+- Middleware beschermt routes op basis van gebruikersrol
+- API routes valideren permissions
+- Clerk zorgt voor veilige authenticatie
+
+## 💳 Betalingen
+
+### Stripe Integratie
+- Recurring subscriptions voor MAAS pakketten
+- Automatische facturering
+- Webhook handling voor betalingsupdates
+
+### Buckaroo Integratie
+- Alternatieve betalingsmethode
+- iDEAL, creditcard en andere Nederlandse betalingsmethoden
+
+## 🔌 API Integraties
+
+### Rompslomp.nl
+```typescript
+// Voorbeeld gebruik
+import { RompslompService } from '@/lib/rompslomp';
+
+// Task aanmaken
+const task = await RompslompService.createTask({
+  title: 'Website onderhoud',
+  description: 'Regelmatig onderhoud van klant website',
+  priority: 'medium'
+});
+```
+
+### Externe APIs
+- **Rompslomp.nl**: Project management en task tracking
+- **Stripe**: Betalingen en subscriptions
+- **Buckaroo**: Nederlandse betalingsmethoden
+
+## 📊 Dashboard Features
+
+### Admin Dashboard
+- Totaal aantal klanten en actieve abonnementen
+- Omzet overzicht en trends
+- Pakket gebruik statistieken
+- Werknemer activiteiten overzicht
+
+### Klant Dashboard
+- Actieve pakketten en urengebruik
+- Recente activiteiten en status
+- Betalingsgeschiedenis
+- Pakket voortgang en limieten
+
+## 🚀 Deployment
+
+### Vercel (Aanbevolen)
+1. Push code naar GitHub
+2. Verbind repository met Vercel
+3. Configureer environment variabelen
+4. Deploy automatisch
+
+### Andere Platforms
+- **Railway**: PostgreSQL hosting
+- **Supabase**: Database en auth
+- **Netlify**: Static hosting (met API routes)
+
+## 🔧 Development
+
+### Scripts
+```bash
+npm run dev          # Development server
+npm run build        # Production build
+npm run start        # Production server
+npm run lint         # ESLint check
+```
+
+### Database Commands
+```bash
+npx prisma studio    # Database GUI
+npx prisma generate  # Genereer client
+npx prisma db push   # Push schema changes
+npx prisma migrate   # Run migrations
+```
+
+## 📝 API Routes
+
+### Packages
+- `GET /api/packages` - Alle pakketten ophalen
+- `POST /api/packages` - Nieuw pakket aanmaken (Admin)
+
+### Activities
+- `GET /api/activities` - Activiteiten ophalen
+- `POST /api/activities` - Nieuwe activiteit registreren
+
+### Customer
+- `GET /api/customer/packages` - Klant pakketten
+- `GET /api/customer/activities` - Klant activiteiten
+
+### Admin
+- `GET /api/admin/stats` - Dashboard statistieken
+
+### Stripe
+- `POST /api/stripe/webhook` - Webhook handler
+
+## 🤝 Bijdragen
+
+1. Fork de repository
+2. Maak een feature branch
+3. Commit je wijzigingen
+4. Push naar de branch
+5. Open een Pull Request
+
+## 📄 Licentie
+
+Dit project is gelicenseerd onder de MIT License.
+
+## 🆘 Support
+
+Voor vragen of problemen:
+- Email: info@maas-platform.nl
+- Telefoon: +31 (0)20 123 4567
+- GitHub Issues: Voor technische problemen
+
+---
+
+**MAAS Platform** - Professionele IT-ondersteuning op maat

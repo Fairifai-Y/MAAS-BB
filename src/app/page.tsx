@@ -1,102 +1,193 @@
-import Image from "next/image";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Package, Clock, Users, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center">
+              <Package className="h-8 w-8 text-blue-600 mr-3" />
+              <h1 className="text-2xl font-bold text-gray-900">MAAS Platform</h1>
+            </div>
+            <div className="flex space-x-4">
+              <Link href="/dashboard">
+                <Button variant="outline">Dashboard</Button>
+              </Link>
+              <Link href="/admin">
+                <Button>Admin</Button>
+              </Link>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Hero Section */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            Managed Application as a Service
+          </h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Professionele IT-ondersteuning op maat. Kies uit onze flexibele pakketten 
+            en laat uw applicaties beheren door ervaren professionals.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Link href="/dashboard">
+              <Button size="lg">Start Nu</Button>
+            </Link>
+            <Link href="#packages">
+              <Button variant="outline" size="lg">Bekijk Pakketten</Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              Waarom MAAS?
+            </h3>
+            <p className="text-lg text-gray-600">
+              Professionele IT-ondersteuning zonder de complexiteit
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card>
+              <CardHeader>
+                <Package className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Flexibele Pakketten</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Kies uit verschillende pakketten (XS, S, M, L, XL, XXL) 
+                  die passen bij uw behoeften en budget.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Clock className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Uren Tracking</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Transparante urenregistratie door ervaren werknemers 
+                  met real-time inzicht in uw projectvoortgang.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CheckCircle className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Gegarandeerde Kwaliteit</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Professionele service met integratie van externe tools 
+                  zoals Rompslomp.nl voor optimale workflow.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Packages Section */}
+      <section id="packages" className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              MAAS Pakketten
+            </h3>
+            <p className="text-lg text-gray-600">
+              Kies het pakket dat het beste bij uw organisatie past
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { name: 'MAAS-XS', hours: 10, price: 500, description: 'Klein pakket voor startups' },
+              { name: 'MAAS-S', hours: 25, price: 1200, description: 'Groeipakket voor kleine bedrijven' },
+              { name: 'MAAS-M', hours: 50, price: 2200, description: 'Middenpakket voor groeiende organisaties' },
+              { name: 'MAAS-L', hours: 100, price: 4000, description: 'Groot pakket voor gevestigde bedrijven' },
+              { name: 'MAAS-XL', hours: 200, price: 7500, description: 'Enterprise pakket voor grote organisaties' },
+              { name: 'MAAS-XXL', hours: 400, price: 14000, description: 'Premium pakket voor multinationals' }
+            ].map((pkg) => (
+              <Card key={pkg.name} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-center">{pkg.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    €{pkg.price}
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4">
+                    {pkg.hours} uren per maand
+                  </div>
+                  <p className="text-gray-600 mb-6">
+                    {pkg.description}
+                  </p>
+                  <Link href="/dashboard">
+                    <Button className="w-full">Kies Pakket</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h4 className="text-lg font-semibold mb-4">MAAS Platform</h4>
+              <p className="text-gray-400">
+                Professionele IT-ondersteuning op maat voor moderne organisaties.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Services</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>Applicatie Beheer</li>
+                <li>Uren Tracking</li>
+                <li>Project Management</li>
+                <li>Support & Onderhoud</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Integraties</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>Rompslomp.nl</li>
+                <li>Stripe Payments</li>
+                <li>Buckaroo</li>
+                <li>Custom APIs</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Contact</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>info@maas-platform.nl</li>
+                <li>+31 (0)20 123 4567</li>
+                <li>Amsterdam, Nederland</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 MAAS Platform. Alle rechten voorbehouden.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );

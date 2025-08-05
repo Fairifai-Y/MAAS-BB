@@ -1,0 +1,119 @@
+'use client';
+
+import { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { 
+  BarChart3,
+  FileText,
+  Package,
+  Home
+} from 'lucide-react';
+import Logo from '@/components/ui/logo';
+
+interface AdminLayoutProps {
+  children: ReactNode;
+  title: string;
+  description?: string;
+}
+
+const menuItems = [
+  {
+    name: 'Overzicht',
+    href: '/admin',
+    icon: BarChart3,
+    description: 'Statistieken en dashboard'
+  },
+  {
+    name: 'Activiteiten',
+    href: '/admin/activities',
+    icon: FileText,
+    description: 'Activiteitenlijsten beheren'
+  },
+  {
+    name: 'Pakketten',
+    href: '/admin/packages',
+    icon: Package,
+    description: 'M.A.A.S. pakketten beheren'
+  },
+  {
+    name: 'Pakket Samenstelling',
+    href: '/admin/package-builder',
+    icon: Package,
+    description: 'Pakketten samenstellen met activiteiten'
+  }
+];
+
+export default function AdminLayout({ children, title, description }: AdminLayoutProps) {
+  const pathname = usePathname();
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-gray-900 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3">
+            <div className="flex items-center">
+              <Logo size="md" />
+            </div>
+            <div className="flex space-x-4">
+              <a href="/" className="text-white hover:text-gray-300 font-medium">
+                Home
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar Navigation */}
+        <aside className="w-64 bg-white shadow-lg min-h-screen">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Admin Beheer</h2>
+            <nav className="space-y-2">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-700' : 'text-gray-500'}`} />
+                    <div>
+                      <div className="font-medium">{item.name}</div>
+                      <div className="text-sm text-gray-500">{item.description}</div>
+                    </div>
+                  </a>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Page Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+              {description && (
+                <p className="text-gray-600 mt-2">{description}</p>
+              )}
+            </div>
+
+            {/* Page Content */}
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+} 
