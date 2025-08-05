@@ -3,9 +3,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { params } = await context.params;
     const body = await request.json();
     const { quantity } = body;
 
@@ -44,9 +45,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { params } = await context.params;
     await prisma.packageActivity.delete({
       where: {
         id: params.id

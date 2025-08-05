@@ -3,9 +3,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { params } = await context.params;
     const body = await request.json();
     const { name, description, category, estimatedHours } = body;
 
@@ -28,9 +29,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { params } = await context.params;
     await prisma.activityTemplate.delete({
       where: { id: params.id }
     });
