@@ -81,8 +81,7 @@ export async function POST(request: NextRequest) {
         data: {
           packageId,
           activityTemplateId,
-          quantity,
-          isIncluded: true
+          quantity
         },
         include: {
           package: {

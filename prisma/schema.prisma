@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  activities Activity[]
+  packages   Package[]
+
+  @@map("users")
+}
+
+model ActivityTemplate {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  category       String
+  estimatedHours Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  packageActivities PackageActivity[]
+  activities        Activity[]
+
+  @@map("activity_templates")
+}
+
+model Package {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  maxHours    Int
+  price       Float
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId             String?
+  user               User?              @relation(fields: [userId], references: [id])
+  packageActivities  PackageActivity[]
+  activities         Activity[]
+
+  @@map("packages")
+}
+
+model PackageActivity {
+  id                 String          @id @default(cuid())
+  packageId          String
+  activityTemplateId String
+  quantity           Int             @default(1)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  // Relations
+  package          Package         @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  activityTemplate ActivityTemplate @relation(fields: [activityTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, activityTemplateId])
+  @@map("package_activities")
+}
+
+model Activity {
+  id                 String          @id @default(cuid())
+  userId             String
+  packageId          String
+  activityTemplateId String
+  status             ActivityStatus  @default(PENDING)
+  hoursSpent         Float           @default(0)
+  notes              String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  // Relations
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  package            Package         @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  activityTemplate   ActivityTemplate @relation(fields: [activityTemplateId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+enum ActivityStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+} 

@@ -30,28 +30,23 @@ export async function POST(request: NextRequest) {
   try {
     switch (event.type) {
       case 'customer.subscription.created':
-        const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionCreated(subscription);
+        console.log('Subscription created:', event.data.object);
         break;
 
       case 'customer.subscription.updated':
-        const updatedSubscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionUpdated(updatedSubscription);
+        console.log('Subscription updated:', event.data.object);
         break;
 
       case 'customer.subscription.deleted':
-        const deletedSubscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionDeleted(deletedSubscription);
+        console.log('Subscription deleted:', event.data.object);
         break;
 
       case 'invoice.payment_succeeded':
-        const invoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaymentSucceeded(invoice);
+        console.log('Payment succeeded:', event.data.object);
         break;
 
       case 'invoice.payment_failed':
-        const failedInvoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaymentFailed(failedInvoice);
+        console.log('Payment failed:', event.data.object);
         break;
 
       default:
@@ -65,89 +60,5 @@ export async function POST(request: NextRequest) {
       { error: 'Webhook handler failed' },
       { status: 500 }
     );
-  }
-}
-
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  // Update customer package with Stripe subscription ID
-  const customerPackage = await prisma.customerPackage.findFirst({
-    where: { stripeSubscriptionId: subscription.id }
-  });
-
-  if (customerPackage) {
-    await prisma.customerPackage.update({
-      where: { id: customerPackage.id },
-      data: { status: 'ACTIVE' }
-    });
-  }
-}
-
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const customerPackage = await prisma.customerPackage.findFirst({
-    where: { stripeSubscriptionId: subscription.id }
-  });
-
-  if (customerPackage) {
-    const status = subscription.status === 'active' ? 'ACTIVE' : 'SUSPENDED';
-    await prisma.customerPackage.update({
-      where: { id: customerPackage.id },
-      data: { status }
-    });
-  }
-}
-
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const customerPackage = await prisma.customerPackage.findFirst({
-    where: { stripeSubscriptionId: subscription.id }
-  });
-
-  if (customerPackage) {
-    await prisma.customerPackage.update({
-      where: { id: customerPackage.id },
-      data: { status: 'CANCELLED' }
-    });
-  }
-}
-
-async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
-  if (invoice.subscription) {
-    const customerPackage = await prisma.customerPackage.findFirst({
-      where: { stripeSubscriptionId: invoice.subscription as string }
-    });
-
-    if (customerPackage) {
-      await prisma.invoice.create({
-        data: {
-          customerId: customerPackage.customerId,
-          userId: customerPackage.customerId, // This should be the admin user ID
-          amount: invoice.amount_paid / 100, // Convert from cents
-          status: 'PAID',
-          stripeInvoiceId: invoice.id,
-          dueDate: new Date(invoice.due_date! * 1000),
-          paidAt: new Date()
-        }
-      });
-    }
-  }
-}
-
-async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-  if (invoice.subscription) {
-    const customerPackage = await prisma.customerPackage.findFirst({
-      where: { stripeSubscriptionId: invoice.subscription as string }
-    });
-
-    if (customerPackage) {
-      await prisma.invoice.create({
-        data: {
-          customerId: customerPackage.customerId,
-          userId: customerPackage.customerId, // This should be the admin user ID
-          amount: invoice.amount_due / 100, // Convert from cents
-          status: 'OVERDUE',
-          stripeInvoiceId: invoice.id,
-          dueDate: new Date(invoice.due_date! * 1000)
-        }
-      });
-    }
   }
 } 

@@ -13,29 +13,21 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const customerPackageId = searchParams.get('customerPackageId');
-    const employeeId = searchParams.get('employeeId');
+    const packageId = searchParams.get('packageId');
+    const userIdParam = searchParams.get('userId');
 
     const where: any = {};
-    if (customerPackageId) where.customerPackageId = customerPackageId;
-    if (employeeId) where.employeeId = employeeId;
+    if (packageId) where.packageId = packageId;
+    if (userIdParam) where.userId = userIdParam;
 
     const activities = await prisma.activity.findMany({
       where,
       include: {
-        customerPackage: {
-          include: {
-            customer: {
-              include: { user: true }
-            },
-            package: true
-          }
-        },
-        employee: {
-          include: { user: true }
-        }
+        package: true,
+        user: true,
+        activityTemplate: true
       },
-      orderBy: { date: 'desc' }
+      orderBy: { createdAt: 'desc' }
     });
 
     return NextResponse.json(activities);
@@ -58,37 +50,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { customerPackageId, description, hours, date, rompslompTaskId } = body;
-
-    // Get employee ID from user
-    const employee = await prisma.employee.findUnique({
-      where: { userId: userId }
-    });
-
-    if (!employee) {
-      return NextResponse.json(
-        { error: 'Employee not found' },
-        { status: 404 }
-      );
-    }
+    const { packageId, activityTemplateId, notes, hoursSpent } = body;
 
     const activity = await prisma.activity.create({
       data: {
-        customerPackageId,
-        employeeId: employee.id,
-        description,
-        hours,
-        date: new Date(date),
-        rompslompTaskId
+        userId,
+        packageId,
+        activityTemplateId,
+        notes,
+        hoursSpent: hoursSpent || 0,
+        status: 'PENDING'
       },
       include: {
-        customerPackage: {
-          include: {
-            customer: { include: { user: true } },
-            package: true
-          }
-        },
-        employee: { include: { user: true } }
+        package: true,
+        user: true,
+        activityTemplate: true
       }
     });
 
