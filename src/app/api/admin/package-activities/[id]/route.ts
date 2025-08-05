@@ -3,16 +3,16 @@ import { prisma } from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { params } = await context.params;
+    const { id } = await params;
     const body = await request.json();
     const { quantity } = body;
 
     const updatedActivity = await prisma.packageActivity.update({
       where: {
-        id: params.id
+        id
       },
       data: {
         quantity: Math.max(0, quantity) // Ensure quantity is not negative
@@ -45,13 +45,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { params } = await context.params;
+    const { id } = await params;
     await prisma.packageActivity.delete({
       where: {
-        id: params.id
+        id
       }
     });
 
