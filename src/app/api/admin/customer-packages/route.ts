@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
 
     const customerPackage = await prisma.customer_packages.create({
       data: {
+        id: `${customerId}-${packageId}-${Date.now()}`,
         customerId,
         packageId,
         status: status || 'ACTIVE',
