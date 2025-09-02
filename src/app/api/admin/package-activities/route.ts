@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           id: existingActivity.id
         },
         data: {
-          quantity: existingActivity.quantity + quantity
+          quantity: quantity
         },
         include: {
           package: {

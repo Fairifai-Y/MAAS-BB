@@ -45,21 +45,20 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
+
     await prisma.packageActivity.delete({
-      where: {
-        id
-      }
+      where: { id }
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    return NextResponse.json({ message: 'Package activity deleted successfully' });
+  } catch (error: any) {
     console.error('Failed to delete package activity:', error);
     return NextResponse.json(
-      { error: 'Failed to delete package activity' },
+      { error: 'Failed to delete package activity', details: error.message },
       { status: 500 }
     );
   }

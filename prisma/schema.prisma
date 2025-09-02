@@ -80,8 +80,28 @@ model Activity {
   updatedAt         DateTime          @updatedAt
   customer_packages customer_packages @relation(fields: [customerPackageId], references: [id], onDelete: Cascade)
   employees         employees         @relation(fields: [employeeId], references: [id])
+  actions           Action[]
 
   @@map("activities")
+}
+
+model Action {
+  id                String        @id @default(cuid())
+  activityId        String
+  ownerId           String
+  title             String
+  description       String?
+  plannedHours      Decimal       @db.Decimal(5, 2)
+  actualHours       Decimal?      @db.Decimal(5, 2)
+  status            ActionStatus  @default(PLANNED)
+  dueDate           DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  activity          Activity      @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  owner             employees     @relation(fields: [ownerId], references: [id])
+
+  @@map("actions")
 }
 
 model admins {
@@ -114,6 +134,7 @@ model customers {
   company           String?
   phone             String?
   address           String?
+  isActive          Boolean             @default(true)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
   customer_packages customer_packages[]
@@ -122,14 +143,16 @@ model customers {
 }
 
 model employees {
-  id         String     @id
-  userId     String     @unique
-  hourlyRate Decimal    @db.Decimal(10, 2)
-  isActive   Boolean    @default(true)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime
-  activities Activity[]
-  users      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String     @id
+  userId        String     @unique
+  hourlyRate    Decimal    @db.Decimal(10, 2)
+  contractHours Int        @default(40) // Contracturen per maand
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime
+  activities    Activity[]
+  ownedActions  Action[]
+  users         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model invoices {
@@ -154,6 +177,13 @@ enum ActivityStatus {
   COMPLETED
 }
 
+enum ActionStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 enum ActivityCategory {
   WEBSITE
   SOCIAL_MEDIA
@@ -161,7 +191,7 @@ enum ActivityCategory {
   DESIGN
   CONTENT
   SEO
-  ANALYTICS
+  PAID_ADVERTISING
   CONSULTING
   TECHNICAL
   ADMINISTRATION

@@ -7,16 +7,16 @@ interface LogoProps {
 
 export function Logo({ className = '', size = 'md' }: LogoProps) {
   const sizeClasses = {
-    sm: 'w-40 h-25',
-    md: 'w-60 h-35',
-    lg: 'w-80 h-45'
+    sm: 'w-96 h-24',
+    md: 'w-120 h-30',
+    lg: 'w-144 h-36'
   };
 
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="/brightbrown_logo.png" 
-        alt="Brightbrown M.A.A.S." 
+        src="/logo_fitchannel.png" 
+        alt="Fitchannel" 
         className={`${sizeClasses[size]} object-contain`}
       />
     </div>

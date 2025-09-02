@@ -8,7 +8,10 @@ import {
   BarChart3,
   FileText,
   Package,
-  Home
+  Home,
+  TrendingUp,
+  Users,
+  CheckSquare
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
 
@@ -26,6 +29,24 @@ const menuItems = [
     description: 'Statistieken en dashboard'
   },
   {
+    name: 'Winstgevendheid',
+    href: '/admin/profitability',
+    icon: TrendingUp,
+    description: 'Klant winstgevendheid analyse'
+  },
+  {
+    name: 'Klanten & Medewerkers',
+    href: '/admin/customers',
+    icon: Users,
+    description: 'Beheer klanten en medewerkers'
+  },
+  {
+    name: 'Acties',
+    href: '/admin/actions',
+    icon: CheckSquare,
+    description: 'Beheer acties gekoppeld aan activiteiten'
+  },
+  {
     name: 'Activiteiten',
     href: '/admin/activities',
     icon: FileText,
@@ -35,13 +56,7 @@ const menuItems = [
     name: 'Pakketten',
     href: '/admin/packages',
     icon: Package,
-    description: 'M.A.A.S. pakketten beheren'
-  },
-  {
-    name: 'Pakket Samenstelling',
-    href: '/admin/package-builder',
-    icon: Package,
-    description: 'Pakketten samenstellen met activiteiten'
+    description: 'Pakketten beheren en samenstellen'
   }
 ];
 
@@ -51,14 +66,14 @@ export default function AdminLayout({ children, title, description }: AdminLayou
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gray-900 shadow-lg">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-3">
+          <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
               <Logo size="md" />
             </div>
             <div className="flex space-x-4">
-              <a href="/" className="text-white hover:text-gray-300 font-medium">
+              <a href="/" className="text-gray-900 hover:text-gray-600 font-medium">
                 Home
               </a>
             </div>
