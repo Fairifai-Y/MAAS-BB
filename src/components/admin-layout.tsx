@@ -36,6 +36,12 @@ const menuItems = [
     description: 'Klant winstgevendheid analyse'
   },
   {
+    name: 'Gebruikers',
+    href: '/admin/users',
+    icon: Users,
+    description: 'Beheer gebruikers en rollen'
+  },
+  {
     name: 'Klanten & Medewerkers',
     href: '/admin/customers',
     icon: Users,
