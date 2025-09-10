@@ -85,20 +85,18 @@ export default function CustomerDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [packagesResponse, activitiesResponse, productsResponse] = await Promise.all([
-        fetch('/api/customer/packages'),
-        fetch('/api/customer/activities'),
-        fetch('/api/customer/products')
+      const [actionsResponse, activitiesResponse] = await Promise.all([
+        fetch('/api/employee/actions'),
+        fetch('/api/employee/activities')
       ]);
 
-      let packages = [];
+      let actions = [];
       let activities = [];
-      let deliveredProducts = [];
 
-      if (packagesResponse.ok) {
-        packages = await packagesResponse.json();
+      if (actionsResponse.ok) {
+        actions = await actionsResponse.json();
       } else {
-        console.error('Failed to fetch packages:', packagesResponse.status);
+        console.error('Failed to fetch actions:', actionsResponse.status);
       }
 
       if (activitiesResponse.ok) {
@@ -107,51 +105,38 @@ export default function CustomerDashboard() {
         console.error('Failed to fetch activities:', activitiesResponse.status);
       }
 
-      if (productsResponse.ok) {
-        deliveredProducts = await productsResponse.json();
-      } else {
-        console.error('Failed to fetch products:', productsResponse.status);
-      }
-
-      // Ensure activities is an array before using reduce
+      // Ensure arrays are valid
       if (!Array.isArray(activities)) {
         activities = [];
       }
-
-      // Ensure packages is an array before using reduce
-      if (!Array.isArray(packages)) {
-        packages = [];
+      if (!Array.isArray(actions)) {
+        actions = [];
       }
 
-      const totalHoursUsed = activities.reduce((sum: number, activity: Activity) => 
-        sum + activity.hours, 0
+      const totalHoursUsed = actions.reduce((sum: number, action: any) => 
+        sum + (action.actualHours || action.plannedHours || 0), 0
       );
 
-      const totalMaxHours = packages.reduce((sum: number, pkg: CustomerPackage) => 
-        sum + pkg.packages.maxHours, 0
+      const totalPlannedHours = actions.reduce((sum: number, action: any) => 
+        sum + (action.plannedHours || 0), 0
       );
 
-      const completedActivities = activities.filter((a: Activity) => 
+      const completedActions = actions.filter((a: any) => 
         a.status === 'COMPLETED'
       ).length;
 
-      const pendingActivities = activities.filter((a: Activity) => 
-        a.status === 'PENDING'
+      const pendingActions = actions.filter((a: any) => 
+        a.status === 'PLANNED' || a.status === 'IN_PROGRESS'
       ).length;
 
-      // Ensure deliveredProducts is an array
-      if (!Array.isArray(deliveredProducts)) {
-        deliveredProducts = [];
-      }
-
       setDashboardData({
-        packages,
+        packages: [], // No packages for employees
         activities,
-        deliveredProducts,
+        deliveredProducts: actions, // Use actions as "delivered products"
         totalHoursUsed,
-        totalHoursRemaining: totalMaxHours - totalHoursUsed,
-        completedActivities,
-        pendingActivities
+        totalHoursRemaining: totalPlannedHours - totalHoursUsed,
+        completedActivities: completedActions,
+        pendingActivities: pendingActions
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
@@ -233,113 +218,44 @@ export default function CustomerDashboard() {
   };
 
   return (
-    <CustomerLayout title="Mijn Fitchannel Dashboard" description="Welkom terug! Hier vind je een overzicht van je pakket en opgeleverde producten.">
+    <CustomerLayout title="Mijn Fitchannel Dashboard" description="Welkom terug! Hier vind je een overzicht van jouw acties en werkzaamheden.">
 
-      {/* Package Overview Section */}
+      {/* Employee Overview Section */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Mijn Pakket Overzicht</h2>
-        {dashboardData.packages.length === 0 ? (
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Geen pakketten gevonden</h3>
-              <p className="text-gray-600">Er zijn momenteel geen pakketten gekoppeld aan jouw account.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {dashboardData.packages.map((pkg) => {
-            const usagePercentage = getPackageUsagePercentage(pkg);
-            const remainingPercentage = 100 - usagePercentage;
-            
-            return (
-              <Card key={pkg.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{pkg.packages.name}</CardTitle>
-                      <p className="text-gray-600 mt-1">{pkg.packages.description}</p>
-                    </div>
-                    <Badge className={getStatusColor(pkg.status)}>
-                      {pkg.status === 'ACTIVE' ? 'Actief' : pkg.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Package Details */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-2xl font-bold text-amber-600">€{pkg.packages.price}</div>
-                        <div className="text-sm text-gray-600">Maandprijs</div>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{pkg.packages.maxHours}</div>
-                        <div className="text-sm text-gray-600">Uren per maand</div>
-                      </div>
-                    </div>
-
-                    {/* Usage Progress */}
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-700">Pakket Gebruik</span>
-                        <span className="text-sm text-gray-600">{usagePercentage.toFixed(1)}% gebruikt</span>
-                      </div>
-                      <Progress value={usagePercentage} className="h-3" />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>{dashboardData.totalHoursUsed} uren gebruikt</span>
-                        <span>{dashboardData.totalHoursRemaining} uren over</span>
-                      </div>
-                    </div>
-
-                    {/* Package Status */}
-                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-blue-900">Pakket Status</div>
-                        <div className="text-sm text-blue-700">
-                          {remainingPercentage > 20 ? 'Ruim voldoende uren beschikbaar' : 
-                           remainingPercentage > 5 ? 'Nog enkele uren beschikbaar' : 
-                           'Bijna op - neem contact op'}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-amber-600">{remainingPercentage.toFixed(1)}%</div>
-                        <div className="text-xs text-amber-600">over</div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-          </div>
-        )}
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Mijn Werk Overzicht</h2>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Medewerker Dashboard</h3>
+            <p className="text-gray-600">Hier zie je een overzicht van jouw acties en activiteiten.</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totaal Producten</CardTitle>
+            <CardTitle className="text-sm font-medium">Totaal Acties</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboardData.deliveredProducts.length}</div>
             <p className="text-xs text-muted-foreground">
-              {dashboardData.deliveredProducts.filter(p => p.status === 'COMPLETED').length} afgerond
+              {dashboardData.completedActivities} afgerond
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Uren Gebruikt</CardTitle>
+            <CardTitle className="text-sm font-medium">Uren Gewerkt</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.totalHoursUsed}</div>
+            <div className="text-2xl font-bold">{dashboardData.totalHoursUsed.toFixed(1)}</div>
             <p className="text-xs text-muted-foreground">
-              {dashboardData.totalHoursRemaining} uren over
+              {dashboardData.totalHoursRemaining.toFixed(1)} uren gepland
             </p>
           </CardContent>
         </Card>
@@ -356,7 +272,7 @@ export default function CustomerDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Wachtende Acties</CardTitle>
+            <CardTitle className="text-sm font-medium">Openstaande Acties</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -365,35 +281,36 @@ export default function CustomerDashboard() {
         </Card>
       </div>
 
-      {/* Recent Activities */}
+      {/* Recent Actions */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="w-5 h-5 mr-2" />
-            Recente Activiteiten
+            Recente Acties
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {dashboardData.activities.length === 0 ? (
+          {dashboardData.deliveredProducts.length === 0 ? (
             <div className="text-center py-8">
               <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Geen activiteiten gevonden</h3>
-              <p className="text-gray-600">Er zijn momenteel geen activiteiten gekoppeld aan jouw pakketten.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Geen acties gevonden</h3>
+              <p className="text-gray-600">Je hebt nog geen acties aangemaakt. Ga naar de Acties pagina om er een aan te maken.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {dashboardData.activities.slice(0, 5).map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {dashboardData.deliveredProducts.slice(0, 5).map((action: any) => (
+                <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
-                    <p className="font-medium">{activity.description}</p>
+                    <p className="font-medium">{action.title}</p>
                     <p className="text-sm text-gray-600">
-                      {activity.employee.user.name} • {new Date(activity.date).toLocaleDateString()}
+                      {action.description} • {new Date(action.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">{activity.hours} uren</p>
-                    <Badge className={getActivityStatusColor(activity.status)}>
-                      {activity.status}
+                    <p className="font-medium">{action.actualHours || action.plannedHours} uren</p>
+                    <Badge className={getActivityStatusColor(action.status)}>
+                      {action.status === 'COMPLETED' ? 'Afgerond' : 
+                       action.status === 'IN_PROGRESS' ? 'Bezig' : 'Gepland'}
                     </Badge>
                   </div>
                 </div>
