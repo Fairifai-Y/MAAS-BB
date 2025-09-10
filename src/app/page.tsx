@@ -2,35 +2,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, Clock, Users, CheckCircle, Shield, Zap, BarChart3, Settings, FileText, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
+import DynamicHeader from '@/components/dynamic-header';
+import QuickAccessCards from '@/components/quick-access-cards';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Image
-                src="/logo_fitchannel.png"
-                alt="Fitchannel Logo"
-                width={200}
-                height={64}
-                className="h-16 w-auto"
-              />
-            </div>
-            <div className="flex space-x-3">
-              <Link href="/auth">
-                <Button variant="outline" size="sm">Inloggen</Button>
-              </Link>
-              <Link href="/auth">
-                <Button size="sm">Registreren</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DynamicHeader />
 
       {/* Hero Section */}
       <section className="py-12 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
@@ -165,55 +144,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/auth">
-              <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Shield className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">Dashboard</h3>
-                  <p className="text-gray-600 text-sm">Overzicht van alle activiteiten</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/auth">
-              <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Users className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">Klanten</h3>
-                  <p className="text-gray-600 text-sm">Beheer klantgegevens</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/auth">
-              <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <TrendingUp className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">Rapportages</h3>
-                  <p className="text-gray-600 text-sm">Analytics en overzichten</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/auth">
-              <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Settings className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">Instellingen</h3>
-                  <p className="text-gray-600 text-sm">Platform configuratie</p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+          <QuickAccessCards />
         </div>
       </section>
 
