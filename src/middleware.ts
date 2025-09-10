@@ -1,33 +1,8 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
-// Define which routes should be protected
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/admin(.*)',
-  '/test-auth(.*)'
-]);
-
-export default clerkMiddleware((auth, req) => {
-  // Protect routes that require authentication
-  if (isProtectedRoute(req)) {
-    auth().protect();
-  }
-
-  // Get the current user from Clerk
-  const { userId, sessionClaims } = auth();
-  
-  // If user is authenticated, check email domain
-  if (userId && sessionClaims?.email) {
-    const email = sessionClaims.email as string;
-    
-    // Check if email ends with @fitchannel.com
-    if (!email.endsWith('@fitchannel.com')) {
-      // Redirect to unauthorized page
-      return NextResponse.redirect(new URL('/unauthorized', req.url));
-    }
-  }
-});
+// Simple middleware that just uses clerkMiddleware without custom logic
+// Route protection is handled by client-side EmailDomainGuard components
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
