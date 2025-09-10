@@ -141,7 +141,7 @@ export default function ClerkStatusPage() {
         <div className="flex space-x-4">
           {isSignedIn ? (
             <>
-              <Button onClick={() => signOut(() => window.location.href = '/')}>
+              <Button onClick={() => signOut()}>
                 Sign Out
               </Button>
               <Link href="/dashboard">
