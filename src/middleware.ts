@@ -1,33 +1,30 @@
-import { authMiddleware } from '@clerk/nextjs';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-export default authMiddleware({
-  // All routes are protected except these public routes
-  publicRoutes: [
-    '/',
-    '/auth',
-    '/unauthorized',
-    '/api/health'
-  ],
+// Define which routes should be protected
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/admin(.*)',
+  '/test-auth(.*)'
+]);
+
+export default clerkMiddleware((auth, req) => {
+  // Protect routes that require authentication
+  if (isProtectedRoute(req)) {
+    auth().protect();
+  }
+
+  // Get the current user from Clerk
+  const { userId, sessionClaims } = auth();
   
-  // Custom logic for email domain validation
-  beforeAuth: (auth, req) => {
-    // This runs before authentication
-  },
-  
-  afterAuth: (auth, req) => {
-    // This runs after authentication
-    const { userId, sessionClaims } = auth();
+  // If user is authenticated, check email domain
+  if (userId && sessionClaims?.email) {
+    const email = sessionClaims.email as string;
     
-    // If user is authenticated, check email domain
-    if (userId && sessionClaims?.email) {
-      const email = sessionClaims.email as string;
-      
-      // Check if email ends with @fitchannel.com
-      if (!email.endsWith('@fitchannel.com')) {
-        // Redirect to unauthorized page
-        return NextResponse.redirect(new URL('/unauthorized', req.url));
-      }
+    // Check if email ends with @fitchannel.com
+    if (!email.endsWith('@fitchannel.com')) {
+      // Redirect to unauthorized page
+      return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
   }
 });
