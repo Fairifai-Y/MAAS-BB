@@ -1,8 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 
-export function middleware(request: NextRequest) {
-  // Allow all routes for now - authentication will be handled by Clerk components
+export async function middleware(request: NextRequest) {
+  // Get the current user from Clerk
+  const { userId, sessionClaims } = await auth();
+  
+  // If user is authenticated, check email domain
+  if (userId && sessionClaims?.email) {
+    const email = sessionClaims.email as string;
+    
+    // Check if email ends with @fitchannel.com
+    if (!email.endsWith('@fitchannel.com')) {
+      // Redirect to unauthorized page or show error
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
+  }
+  
   return NextResponse.next();
 }
 

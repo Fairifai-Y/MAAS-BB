@@ -23,9 +23,11 @@ import {
   Edit,
   Save,
   X,
-  Trash2
+  Trash2,
+  Plus
 } from 'lucide-react';
 import AdminLayout from '@/components/admin-layout';
+import { isValidEmailDomain, getEmailDomainError } from '@/lib/auth-utils';
 
 interface Customer {
   id: string;
@@ -65,6 +67,8 @@ export default function CustomersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'customers' | 'employees'>('customers');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Edit dialogs
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [editForm, setEditForm] = useState({
@@ -85,10 +89,33 @@ export default function CustomersPage() {
     hourlyRate: '',
     contractHours: ''
   });
+  
+  // Delete dialogs
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
   const [isDeleteEmployeeDialogOpen, setIsDeleteEmployeeDialogOpen] = useState(false);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
+  
+  // New item dialogs
+  const [isNewCustomerDialogOpen, setIsNewCustomerDialogOpen] = useState(false);
+  const [isNewEmployeeDialogOpen, setIsNewEmployeeDialogOpen] = useState(false);
+  const [newCustomerForm, setNewCustomerForm] = useState({
+    company: '',
+    email: '',
+    name: '',
+    phone: '',
+    address: '',
+    price: '',
+    maxHours: '',
+    isActive: true
+  });
+  const [newEmployeeForm, setNewEmployeeForm] = useState({
+    name: '',
+    email: '',
+    hourlyRate: '',
+    contractHours: '',
+    isActive: true
+  });
 
   useEffect(() => {
     fetchData();
@@ -165,6 +192,12 @@ export default function CustomersPage() {
     if (!editingCustomer) return;
 
     try {
+      // Validate email domain
+      if (!isValidEmailDomain(editForm.email)) {
+        alert(getEmailDomainError(editForm.email));
+        return;
+      }
+
       const requestBody = {
         ...editForm,
         price: Number(editForm.price) || 0,
@@ -218,6 +251,12 @@ export default function CustomersPage() {
     if (!editingEmployee) return;
 
     try {
+      // Validate email domain
+      if (!isValidEmailDomain(editEmployeeForm.email)) {
+        alert(getEmailDomainError(editEmployeeForm.email));
+        return;
+      }
+
       const requestBody = {
         ...editEmployeeForm,
         hourlyRate: Number(editEmployeeForm.hourlyRate) || 0,
@@ -349,6 +388,125 @@ export default function CustomersPage() {
     }
   };
 
+  // New Customer functions
+  const openNewCustomerDialog = () => {
+    setNewCustomerForm({
+      company: '',
+      email: '',
+      name: '',
+      phone: '',
+      address: '',
+      price: '',
+      maxHours: '',
+      isActive: true
+    });
+    setIsNewCustomerDialogOpen(true);
+  };
+
+  const createNewCustomer = async () => {
+    try {
+      // Validate email domain
+      if (!isValidEmailDomain(newCustomerForm.email)) {
+        alert(getEmailDomainError(newCustomerForm.email));
+        return;
+      }
+
+      const requestBody = {
+        ...newCustomerForm,
+        price: Number(newCustomerForm.price) || 0,
+        maxHours: Number(newCustomerForm.maxHours) || 0
+      };
+      
+      console.log('🔄 Creating new customer:', requestBody);
+      
+      const response = await fetch('/api/admin/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Customer created successfully:', result);
+        setIsNewCustomerDialogOpen(false);
+        fetchData(); // Refresh data
+        alert('Klant succesvol aangemaakt!');
+      } else {
+        let errorMessage = 'Onbekende fout';
+        try {
+          const errorData = await response.json();
+          console.error('❌ Failed to create customer:', errorData);
+          errorMessage = errorData.error || errorData.details || 'Onbekende fout';
+        } catch (parseError) {
+          console.error('❌ Failed to parse error response:', parseError);
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        alert(`Fout bij aanmaken: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('❌ Error creating customer:', error);
+      alert('Netwerkfout bij aanmaken van klant');
+    }
+  };
+
+  // New Employee functions
+  const openNewEmployeeDialog = () => {
+    setNewEmployeeForm({
+      name: '',
+      email: '',
+      hourlyRate: '',
+      contractHours: '',
+      isActive: true
+    });
+    setIsNewEmployeeDialogOpen(true);
+  };
+
+  const createNewEmployee = async () => {
+    try {
+      // Validate email domain
+      if (!isValidEmailDomain(newEmployeeForm.email)) {
+        alert(getEmailDomainError(newEmployeeForm.email));
+        return;
+      }
+
+      const requestBody = {
+        ...newEmployeeForm,
+        hourlyRate: Number(newEmployeeForm.hourlyRate) || 0,
+        contractHours: Number(newEmployeeForm.contractHours) || 0
+      };
+      
+      console.log('🔄 Creating new employee:', requestBody);
+      
+      const response = await fetch('/api/admin/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Employee created successfully:', result);
+        setIsNewEmployeeDialogOpen(false);
+        fetchData(); // Refresh data
+        alert('Medewerker succesvol aangemaakt!');
+      } else {
+        let errorMessage = 'Onbekende fout';
+        try {
+          const errorData = await response.json();
+          console.error('❌ Failed to create employee:', errorData);
+          errorMessage = errorData.error || errorData.details || 'Onbekende fout';
+        } catch (parseError) {
+          console.error('❌ Failed to parse error response:', parseError);
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        alert(`Fout bij aanmaken: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('❌ Error creating employee:', error);
+      alert('Netwerkfout bij aanmaken van medewerker');
+    }
+  };
+
   return (
     <AdminLayout 
       title="Klanten & Medewerkers" 
@@ -387,6 +545,24 @@ export default function CustomersPage() {
               <Users className="w-4 h-4 mr-2" />
               Medewerkers ({employees.length})
             </button>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex space-x-3">
+              {activeTab === 'customers' && (
+                <Button onClick={openNewCustomerDialog} className="bg-amber-600 hover:bg-amber-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nieuwe Klant
+                </Button>
+              )}
+              {activeTab === 'employees' && (
+                <Button onClick={openNewEmployeeDialog} className="bg-amber-600 hover:bg-amber-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nieuwe Medewerker
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Search Bar */}
@@ -858,6 +1034,182 @@ export default function CustomersPage() {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* New Customer Dialog */}
+        <Dialog open={isNewCustomerDialogOpen} onOpenChange={setIsNewCustomerDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Nieuwe Klant Toevoegen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="new-company">Bedrijfsnaam</Label>
+                  <Input
+                    id="new-company"
+                    value={newCustomerForm.company}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, company: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-name">Contactpersoon</Label>
+                  <Input
+                    id="new-name"
+                    value={newCustomerForm.name}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, name: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="new-email">E-mail</Label>
+                <Input
+                  id="new-email"
+                  type="email"
+                  value={newCustomerForm.email}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new-phone">Telefoon</Label>
+                <Input
+                  id="new-phone"
+                  value={newCustomerForm.phone}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new-address">Adres</Label>
+                <Input
+                  id="new-address"
+                  value={newCustomerForm.address}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, address: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="new-price">Maandprijs (€)</Label>
+                  <Input
+                    id="new-price"
+                    type="number"
+                    value={newCustomerForm.price}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, price: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-maxHours">Uren per maand</Label>
+                  <Input
+                    id="new-maxHours"
+                    type="number"
+                    value={newCustomerForm.maxHours}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, maxHours: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="new-isActive"
+                  checked={newCustomerForm.isActive}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, isActive: e.target.checked })}
+                  className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 focus:ring-2"
+                />
+                <Label htmlFor="new-isActive" className="text-sm font-medium text-gray-700">
+                  Klant is actief
+                </Label>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button onClick={createNewCustomer} className="flex-1">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Klant Toevoegen
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsNewCustomerDialogOpen(false)}
+                  className="flex-1"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Annuleren
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* New Employee Dialog */}
+        <Dialog open={isNewEmployeeDialogOpen} onOpenChange={setIsNewEmployeeDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Nieuwe Medewerker Toevoegen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="new-employee-name">Naam</Label>
+                  <Input
+                    id="new-employee-name"
+                    value={newEmployeeForm.name}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, name: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-employee-email">E-mail</Label>
+                  <Input
+                    id="new-employee-email"
+                    type="email"
+                    value={newEmployeeForm.email}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, email: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="new-employee-hourly-rate">Uurtarief (€)</Label>
+                  <Input
+                    id="new-employee-hourly-rate"
+                    type="number"
+                    value={newEmployeeForm.hourlyRate}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, hourlyRate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-employee-contract-hours">Contracturen/maand</Label>
+                  <Input
+                    id="new-employee-contract-hours"
+                    type="number"
+                    value={newEmployeeForm.contractHours}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, contractHours: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="new-employee-isActive"
+                  checked={newEmployeeForm.isActive}
+                  onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, isActive: e.target.checked })}
+                  className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 focus:ring-2"
+                />
+                <Label htmlFor="new-employee-isActive" className="text-sm font-medium text-gray-700">
+                  Medewerker is actief
+                </Label>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button onClick={createNewEmployee} className="flex-1">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Medewerker Toevoegen
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsNewEmployeeDialogOpen(false)}
+                  className="flex-1"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Annuleren
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </AdminLayout>

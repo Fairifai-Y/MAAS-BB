@@ -15,11 +15,14 @@ export default function Home() {
               <Logo size="md" />
             </div>
             <div className="flex space-x-4">
-              <Link href="/dashboard">
-                <Button variant="outline">Dashboard</Button>
+              <Link href="/auth">
+                <Button variant="outline">Inloggen</Button>
               </Link>
-              <Link href="/admin">
-                <Button>Admin</Button>
+              <Link href="/auth">
+                <Button>Registreren</Button>
+              </Link>
+              <Link href="/test-auth">
+                <Button variant="secondary">Test Auth</Button>
               </Link>
             </div>
           </div>
@@ -37,7 +40,7 @@ export default function Home() {
             en laat uw applicaties beheren door ervaren professionals.
           </p>
           <div className="flex justify-center space-x-4">
-            <Link href="/dashboard">
+            <Link href="/auth">
               <Button size="lg">Start Nu</Button>
             </Link>
             <Link href="#packages">
@@ -137,7 +140,7 @@ export default function Home() {
                   <p className="text-gray-600 mb-6">
                     {pkg.description}
                   </p>
-                  <Link href="/dashboard">
+                  <Link href="/auth">
                     <Button className="w-full">Kies Pakket</Button>
                   </Link>
                 </CardContent>
