@@ -6,8 +6,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MAAS Platform - Managed Application as a Service",
-  description: "Professionele IT-ondersteuning op maat met flexibele pakketten en uren tracking",
+  title: "Fitchannel - Change the Channel",
+  description: "Fitchannel - Change the Channel. Interne platform voor professionele IT-ondersteuning en project management.",
 };
 
 export default function RootLayout({

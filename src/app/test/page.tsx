@@ -33,7 +33,7 @@ export default function TestPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">MAAS Platform Test</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Fitchannel Platform Test</h1>
         
         <Card className="mb-6">
           <CardHeader>

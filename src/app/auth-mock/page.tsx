@@ -41,7 +41,7 @@ export default function MockAuthPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">MAAS Platform</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Fitchannel</h1>
           <p className="text-gray-600">Mock Authenticatie (Test Mode)</p>
         </div>
 

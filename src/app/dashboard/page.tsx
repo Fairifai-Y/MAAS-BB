@@ -255,7 +255,7 @@ export default function CustomerDashboard() {
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Mijn M.A.A.S. Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Mijn Fitchannel Dashboard</h1>
             <p className="text-gray-600 mt-2">Welkom terug! Hier vind je een overzicht van je pakket en opgeleverde producten.</p>
           </div>
 

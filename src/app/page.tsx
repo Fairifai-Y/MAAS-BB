@@ -45,11 +45,14 @@ export default function Home() {
             />
           </div>
           <h1 className="text-5xl font-bold mb-6">
-            Welkom bij het MAAS Platform
+            Welkom bij Fitchannel
           </h1>
-          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-blue-100 mb-4 max-w-3xl mx-auto">
             Het interne platform voor Fitchannel medewerkers. Beheer klanten, 
             track uren en monitor projecten op één centrale plek.
+          </p>
+          <p className="text-lg text-blue-200 font-semibold">
+            Change the Channel
           </p>
           <div className="flex justify-center space-x-4">
             <Link href="/auth">

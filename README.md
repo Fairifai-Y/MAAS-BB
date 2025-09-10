@@ -1,4 +1,4 @@
-# MAAS Platform - Managed Application as a Service
+# Fitchannel Platform - Change the Channel
 
 Een professioneel platform voor het beheren van IT-services met flexibele pakketten, uren tracking en externe integraties.
 
@@ -6,13 +6,13 @@ Een professioneel platform voor het beheren van IT-services met flexibele pakket
 
 ### Voor Klanten
 - **Dashboard**: Overzicht van actieve pakketten en gebruikte uren
-- **Pakket Beheer**: Inzicht in MAAS pakketten (XS, S, M, L, XL, XXL)
+- **Pakket Beheer**: Inzicht in Fitchannel pakketten (XS, S, M, L, XL, XXL)
 - **Activiteiten Tracking**: Real-time overzicht van afgeronde acties
 - **Betalingen**: Geïntegreerde Stripe/Buckaroo betalingen
 
 ### Voor Admins
 - **Admin Dashboard**: Statistieken en overzicht van alle klanten
-- **Pakket Beheer**: Aanmaken en beheren van MAAS pakketten
+- **Pakket Beheer**: Aanmaken en beheren van Fitchannel pakketten
 - **Werknemer Beheer**: Uren registratie en activiteiten tracking
 - **Rapportages**: Uitgebreide statistieken en analyses
 
@@ -38,7 +38,7 @@ Een professioneel platform voor het beheren van IT-services met flexibele pakket
 ### 1. Clone de repository
 ```bash
 git clone <repository-url>
-cd maas-platform
+cd fitchannel-platform
 ```
 
 ### 2. Installeer dependencies
@@ -51,7 +51,7 @@ Kopieer `env.example` naar `.env.local` en vul de benodigde waarden in:
 
 ```env
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/maas_db"
+DATABASE_URL="postgresql://username:password@localhost:5432/fitchannel_db"
 
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -100,7 +100,7 @@ De applicatie is nu beschikbaar op `http://localhost:3000`
 - **Admin**: Admin gebruikers met permissions
 
 #### Packages & Billing
-- **Package**: MAAS pakketten (XS-XXL) met prijzen en urenlimieten
+- **Package**: Fitchannel pakketten (XS-XXL) met prijzen en urenlimieten
 - **CustomerPackage**: Klant-specifieke pakket abonnementen
 - **Invoice**: Facturen en betalingen
 
@@ -111,7 +111,7 @@ De applicatie is nu beschikbaar op `http://localhost:3000`
 ## 🔐 Authenticatie & Rollen
 
 ### Gebruikersrollen
-1. **Customer**: Klanten die MAAS pakketten gebruiken
+1. **Customer**: Klanten die Fitchannel pakketten gebruiken
 2. **Employee**: Werknemers die uren registreren
 3. **Admin**: Beheerders met volledige toegang
 
@@ -123,7 +123,7 @@ De applicatie is nu beschikbaar op `http://localhost:3000`
 ## 💳 Betalingen
 
 ### Stripe Integratie
-- Recurring subscriptions voor MAAS pakketten
+- Recurring subscriptions voor Fitchannel pakketten
 - Automatische facturering
 - Webhook handling voor betalingsupdates
 
@@ -231,10 +231,10 @@ Dit project is gelicenseerd onder de MIT License.
 ## 🆘 Support
 
 Voor vragen of problemen:
-- Email: info@maas-platform.nl
+- Email: info@fitchannel.com
 - Telefoon: +31 (0)20 123 4567
 - GitHub Issues: Voor technische problemen
 
 ---
 
-**MAAS Platform** - Professionele IT-ondersteuning op maat
+**Fitchannel Platform** - Change the Channel
