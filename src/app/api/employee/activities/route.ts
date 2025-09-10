@@ -37,11 +37,8 @@ export async function GET() {
       );
     }
 
-    // Get activities for this employee
+    // Get all activities (like admin does) so employees can create actions for any activity
     const activities = await prisma.activity.findMany({
-      where: {
-        employeeId: employee.id
-      },
       include: {
         customer_packages: {
           include: {

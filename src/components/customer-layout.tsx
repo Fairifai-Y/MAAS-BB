@@ -10,7 +10,7 @@ import {
   Home
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
-import EmailDomainGuard from '@/components/email-domain-guard';
+import EmployeeGuard from '@/components/employee-guard';
 
 interface CustomerLayoutProps {
   children: ReactNode;
@@ -37,7 +37,7 @@ export default function CustomerLayout({ children, title, description }: Custome
   const pathname = usePathname();
 
   return (
-    <EmailDomainGuard>
+    <EmployeeGuard>
       <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
@@ -104,6 +104,6 @@ export default function CustomerLayout({ children, title, description }: Custome
         </main>
       </div>
       </div>
-    </EmailDomainGuard>
+    </EmployeeGuard>
   );
 }
