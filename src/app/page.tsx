@@ -313,35 +313,15 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Platform Info */}
+            {/* Contact */}
             <div className="footer-menu">
-              <h4 className="text-lg font-semibold mb-4 text-white">Platform</h4>
+              <h4 className="text-lg font-semibold mb-4 text-white">Contact</h4>
               <div className="space-y-2">
-                <div className="mb-4">
-                  <Image
-                    src="/logo_fitchannel.png"
-                    alt="Fitchannel Logo"
-                    width={100}
-                    height={30}
-                    className="h-8 w-auto mb-2"
-                  />
-                  <p className="text-blue-200 font-semibold text-sm">
-                    Change the Channel
-                  </p>
-                </div>
                 <div className="text-gray-400 text-sm space-y-1">
                   <p>📧 info@fitchannel.com</p>
                   <p>📞 +31 (0)20 123 4567</p>
-                  <p>📍 Amsterdam, Nederland</p>
-                </div>
-                <div className="mt-4">
-                  <Image
-                    src="/image002.png"
-                    alt="Fitchannel Image"
-                    width={60}
-                    height={45}
-                    className="h-10 w-auto opacity-80"
-                  />
+                  <p>📍 Bergsingel 67</p>
+                  <p>📍 7411 CN Deventer</p>
                 </div>
               </div>
             </div>
