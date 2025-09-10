@@ -15,9 +15,9 @@ export default function Home() {
               <Image
                 src="/logo_fitchannel.png"
                 alt="Fitchannel Logo"
-                width={100}
-                height={32}
-                className="h-8 w-auto"
+                width={200}
+                height={64}
+                className="h-16 w-auto"
               />
             </div>
             <div className="flex space-x-3">
@@ -35,38 +35,15 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-12 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-6">
-            <Image
-              src="/logo_fitchannel.png"
-              alt="Fitchannel Logo"
-              width={150}
-              height={45}
-              className="h-12 w-auto mx-auto mb-4"
-            />
-          </div>
           <h1 className="text-3xl font-bold mb-4">
             Welkom bij Fitchannel
           </h1>
           <p className="text-lg text-blue-100 mb-3 max-w-2xl mx-auto">
             Het interne platform voor Fitchannel medewerkers
           </p>
-          <p className="text-base text-blue-200 font-semibold mb-6">
+          <p className="text-base text-blue-200 font-semibold">
             Change the Channel
           </p>
-          <div className="flex justify-center space-x-3">
-            <Link href="/auth">
-              <Button className="bg-white text-blue-600 hover:bg-blue-50">
-                <Shield className="w-4 h-4 mr-2" />
-                Inloggen
-              </Button>
-            </Link>
-            <Link href="/auth">
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                <Users className="w-4 h-4 mr-2" />
-                Registreren
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
