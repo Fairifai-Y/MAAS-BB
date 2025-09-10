@@ -24,6 +24,9 @@ export default function Home() {
               <Link href="/test-auth">
                 <Button variant="secondary">Test Auth</Button>
               </Link>
+              <Link href="/clerk-status">
+                <Button variant="secondary">Clerk Status</Button>
+              </Link>
             </div>
           </div>
         </div>
