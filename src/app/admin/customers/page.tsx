@@ -488,11 +488,18 @@ export default function CustomersPage() {
   // New Employee functions
   const openNewEmployeeDialog = () => {
     setNewEmployeeForm({
+      employeeId: '',
       name: '',
+      function: '',
+      department: '',
       email: '',
-      hourlyRate: '',
-      contractHours: '',
-      isActive: true
+      phone: '',
+      contractType: 'VAST' as 'VAST' | 'TIJDELIJK' | 'ZZP',
+      internalHourlyRate: '',
+      externalHourlyRate: '',
+      startDate: '',
+      endDate: '',
+      status: 'ACTIEF' as 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF'
     });
     setIsNewEmployeeDialogOpen(true);
   };
@@ -844,7 +851,7 @@ export default function CustomersPage() {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">
-                      {employees.filter(e => e.isActive).length}
+                      {employees.filter(e => e.status === 'ACTIEF').length}
                     </div>
                     <div className="text-sm text-gray-600">Actieve Medewerkers</div>
                   </div>

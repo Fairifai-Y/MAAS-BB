@@ -26,7 +26,7 @@ export async function GET() {
     }
 
     // Get customer record
-    const customer = await prisma.customer.findUnique({
+    const customer = await prisma.customers.findUnique({
       where: { userId: user.id }
     });
 
@@ -37,15 +37,28 @@ export async function GET() {
       );
     }
 
-    // Get actions for this customer
+    // Get actions for this customer through activities
     const actions = await prisma.action.findMany({
       where: {
-        customerId: customer.id
+        activity: {
+          customer_packages: {
+            customerId: customer.id
+          }
+        }
       },
       include: {
-        assignedTo: {
+        owner: {
           include: {
-            user: true
+            users: true
+          }
+        },
+        activity: {
+          include: {
+            customer_packages: {
+              include: {
+                customers: true
+              }
+            }
           }
         }
       },
