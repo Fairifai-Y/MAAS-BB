@@ -56,22 +56,24 @@ interface Customer {
 
 interface Employee {
   id: string;
-  employeeId: string;
-  name: string;
-  function: string;
-  department: string;
-  email: string;
-  phone: string;
-  contractType: 'VAST' | 'TIJDELIJK' | 'ZZP';
-  internalHourlyRate: number;
-  externalHourlyRate: number;
-  startDate: string;
-  endDate?: string;
-  status: 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF';
+  hourlyRate: number;
+  contractHours: number;
+  isActive: boolean;
   users: {
     email: string;
     name: string;
   };
+  // Extended fields stored in user data (we'll use JSON in user name field for now)
+  employeeId?: string;
+  function?: string;
+  department?: string;
+  phone?: string;
+  contractType?: 'VAST' | 'TIJDELIJK' | 'ZZP';
+  internalHourlyRate?: number;
+  externalHourlyRate?: number;
+  startDate?: string;
+  endDate?: string;
+  status?: 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF';
 }
 
 export default function CustomersPage() {
@@ -97,18 +99,11 @@ export default function CustomersPage() {
   const [isEditEmployeeDialogOpen, setIsEditEmployeeDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [editEmployeeForm, setEditEmployeeForm] = useState({
-    employeeId: '',
     name: '',
-    function: '',
-    department: '',
     email: '',
-    phone: '',
-    contractType: 'VAST' as 'VAST' | 'TIJDELIJK' | 'ZZP',
-    internalHourlyRate: '',
-    externalHourlyRate: '',
-    startDate: '',
-    endDate: '',
-    status: 'ACTIEF' as 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF'
+    hourlyRate: '',
+    contractHours: '',
+    isActive: true
   });
   
   // Delete dialogs
@@ -131,18 +126,11 @@ export default function CustomersPage() {
     isActive: true
   });
   const [newEmployeeForm, setNewEmployeeForm] = useState({
-    employeeId: '',
     name: '',
-    function: '',
-    department: '',
     email: '',
-    phone: '',
-    contractType: 'VAST' as 'VAST' | 'TIJDELIJK' | 'ZZP',
-    internalHourlyRate: '',
-    externalHourlyRate: '',
-    startDate: '',
-    endDate: '',
-    status: 'ACTIEF' as 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF'
+    hourlyRate: '',
+    contractHours: '',
+    isActive: true
   });
 
   useEffect(() => {
@@ -267,18 +255,11 @@ export default function CustomersPage() {
   const openEditEmployeeDialog = (employee: Employee) => {
     setEditingEmployee(employee);
     setEditEmployeeForm({
-      employeeId: employee.employeeId || '',
-      name: employee.name || employee.users.name || '',
-      function: employee.function || '',
-      department: employee.department || '',
-      email: employee.email || employee.users.email || '',
-      phone: employee.phone || '',
-      contractType: employee.contractType || 'VAST',
-      internalHourlyRate: String(employee.internalHourlyRate || ''),
-      externalHourlyRate: String(employee.externalHourlyRate || ''),
-      startDate: employee.startDate || '',
-      endDate: employee.endDate || '',
-      status: employee.status || 'ACTIEF'
+      name: employee.users.name || '',
+      email: employee.users.email || '',
+      hourlyRate: String(employee.hourlyRate || ''),
+      contractHours: String(employee.contractHours || ''),
+      isActive: employee.isActive
     });
     setIsEditEmployeeDialogOpen(true);
   };
@@ -295,8 +276,8 @@ export default function CustomersPage() {
 
       const requestBody = {
         ...editEmployeeForm,
-        internalHourlyRate: Number(editEmployeeForm.internalHourlyRate) || 0,
-        externalHourlyRate: Number(editEmployeeForm.externalHourlyRate) || 0
+        hourlyRate: Number(editEmployeeForm.hourlyRate) || 0,
+        contractHours: Number(editEmployeeForm.contractHours) || 40
       };
       
       console.log('🔄 Sending update request:', requestBody);
@@ -488,18 +469,11 @@ export default function CustomersPage() {
   // New Employee functions
   const openNewEmployeeDialog = () => {
     setNewEmployeeForm({
-      employeeId: '',
       name: '',
-      function: '',
-      department: '',
       email: '',
-      phone: '',
-      contractType: 'VAST' as 'VAST' | 'TIJDELIJK' | 'ZZP',
-      internalHourlyRate: '',
-      externalHourlyRate: '',
-      startDate: '',
-      endDate: '',
-      status: 'ACTIEF' as 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF'
+      hourlyRate: '',
+      contractHours: '',
+      isActive: true
     });
     setIsNewEmployeeDialogOpen(true);
   };
@@ -514,8 +488,8 @@ export default function CustomersPage() {
 
       const requestBody = {
         ...newEmployeeForm,
-        internalHourlyRate: Number(newEmployeeForm.internalHourlyRate) || 0,
-        externalHourlyRate: Number(newEmployeeForm.externalHourlyRate) || 0
+        hourlyRate: Number(newEmployeeForm.hourlyRate) || 0,
+        contractHours: Number(newEmployeeForm.contractHours) || 40
       };
       
       console.log('🔄 Creating new employee:', requestBody);
@@ -724,17 +698,14 @@ export default function CustomersPage() {
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg">{employee.name || employee.users.name}</CardTitle>
-                          <p className="text-sm text-gray-600">{employee.function || 'Geen functie'}</p>
+                          <CardTitle className="text-lg">{employee.users.name}</CardTitle>
+                          <p className="text-sm text-gray-600">Medewerker</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge className={
-                            employee.status === 'ACTIEF' ? 'bg-green-100 text-green-800' :
-                            employee.status === 'INACTIEF' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                            employee.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                           }>
-                            {employee.status === 'ACTIEF' ? 'Actief' :
-                             employee.status === 'INACTIEF' ? 'Inactief' : 'Uit dienst'}
+                            {employee.isActive ? 'Actief' : 'Inactief'}
                           </Badge>
                           <Button
                             size="sm"
@@ -759,56 +730,18 @@ export default function CustomersPage() {
                       <div className="space-y-3">
                         <div className="flex items-center text-sm text-gray-600">
                           <Mail className="w-4 h-4 mr-2" />
-                          <span>{employee.email || employee.users.email}</span>
-                        </div>
-                        
-                        {employee.phone && (
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Phone className="w-4 h-4 mr-2" />
-                            <span>{employee.phone}</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Building className="w-4 h-4 mr-2" />
-                          <span>{employee.department || 'Geen afdeling'}</span>
+                          <span>{employee.users.email}</span>
                         </div>
                         
                         <div className="flex items-center text-sm text-gray-600">
-                          <FileText className="w-4 h-4 mr-2" />
-                          <span>{employee.contractType || 'Geen contracttype'}</span>
+                          <Euro className="w-4 h-4 mr-2" />
+                          <span>Uurtarief: €{employee.hourlyRate}</span>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div className="flex items-center text-gray-600">
-                            <Euro className="w-4 h-4 mr-2" />
-                            <span>Intern: €{employee.internalHourlyRate || 0}</span>
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <Euro className="w-4 h-4 mr-2" />
-                            <span>Extern: €{employee.externalHourlyRate || 0}</span>
-                          </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="w-4 h-4 mr-2" />
+                          <span>Contracturen: {employee.contractHours}h/maand</span>
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div className="flex items-center text-gray-600">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            <span>Start: {employee.startDate ? new Date(employee.startDate).toLocaleDateString() : 'N/A'}</span>
-                          </div>
-                          {employee.endDate && (
-                            <div className="flex items-center text-gray-600">
-                              <Calendar className="w-4 h-4 mr-2" />
-                              <span>Eind: {new Date(employee.endDate).toLocaleDateString()}</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {employee.employeeId && (
-                          <div className="flex items-center text-sm text-gray-500">
-                            <Hash className="w-4 h-4 mr-2" />
-                            <span>ID: {employee.employeeId}</span>
-                          </div>
-                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -966,155 +899,70 @@ export default function CustomersPage() {
 
        {/* Edit Employee Dialog */}
        <Dialog open={isEditEmployeeDialogOpen} onOpenChange={setIsEditEmployeeDialogOpen}>
-         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+         <DialogContent className="sm:max-w-[500px]">
            <DialogHeader>
              <DialogTitle>Medewerker Bewerken</DialogTitle>
            </DialogHeader>
            {editingEmployee && (
              <div className="space-y-4">
-               {/* Basic Information */}
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="employee-id">Medewerker ID</Label>
-                   <Input
-                     id="employee-id"
-                     value={editEmployeeForm.employeeId}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, employeeId: e.target.value })}
-                     placeholder="Uniek nummer of UUID"
-                   />
-                 </div>
-                 <div>
-                   <Label htmlFor="employee-name">Naam</Label>
-                   <Input
-                     id="employee-name"
-                     value={editEmployeeForm.name}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, name: e.target.value })}
-                     placeholder="Voor- en achternaam"
-                   />
-                 </div>
+               <div>
+                 <Label htmlFor="employee-name">Naam</Label>
+                 <Input
+                   id="employee-name"
+                   value={editEmployeeForm.name}
+                   onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, name: e.target.value })}
+                   placeholder="Voor- en achternaam"
+                 />
+               </div>
+               
+               <div>
+                 <Label htmlFor="employee-email">E-mail</Label>
+                 <Input
+                   id="employee-email"
+                   type="email"
+                   value={editEmployeeForm.email}
+                   onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, email: e.target.value })}
+                   placeholder="email@fitchannel.com"
+                 />
                </div>
                
                <div className="grid grid-cols-2 gap-4">
                  <div>
-                   <Label htmlFor="employee-function">Functie / Rol</Label>
+                   <Label htmlFor="employee-hourly-rate">Uurtarief (€)</Label>
                    <Input
-                     id="employee-function"
-                     value={editEmployeeForm.function}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, function: e.target.value })}
-                     placeholder="bijv. consultant, developer, projectmanager"
-                   />
-                 </div>
-                 <div>
-                   <Label htmlFor="employee-department">Afdeling / Team</Label>
-                   <Input
-                     id="employee-department"
-                     value={editEmployeeForm.department}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, department: e.target.value })}
-                     placeholder="Afdeling of team naam"
-                   />
-                 </div>
-               </div>
-
-               {/* Contact Information */}
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="employee-email">E-mail</Label>
-                   <Input
-                     id="employee-email"
-                     type="email"
-                     value={editEmployeeForm.email}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, email: e.target.value })}
-                     placeholder="email@fitchannel.com"
-                   />
-                 </div>
-                 <div>
-                   <Label htmlFor="employee-phone">Telefoon</Label>
-                   <Input
-                     id="employee-phone"
-                     value={editEmployeeForm.phone}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, phone: e.target.value })}
-                     placeholder="+31 6 12345678"
-                   />
-                 </div>
-               </div>
-
-               {/* Contract Information */}
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="employee-contract-type">Contracttype</Label>
-                   <select
-                     id="employee-contract-type"
-                     value={editEmployeeForm.contractType}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, contractType: e.target.value as any })}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   >
-                     <option value="VAST">Vast</option>
-                     <option value="TIJDELIJK">Tijdelijk</option>
-                     <option value="ZZP">ZZP</option>
-                   </select>
-                 </div>
-                 <div>
-                   <Label htmlFor="employee-status">Status</Label>
-                   <select
-                     id="employee-status"
-                     value={editEmployeeForm.status}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, status: e.target.value as any })}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   >
-                     <option value="ACTIEF">Actief</option>
-                     <option value="UIT_DIENST">Uit dienst</option>
-                     <option value="INACTIEF">Inactief</option>
-                   </select>
-                 </div>
-               </div>
-
-               {/* Hourly Rates */}
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="employee-internal-rate">Uurtarief Intern (€)</Label>
-                   <Input
-                     id="employee-internal-rate"
+                     id="employee-hourly-rate"
                      type="number"
                      step="0.01"
-                     value={editEmployeeForm.internalHourlyRate}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, internalHourlyRate: e.target.value })}
-                     placeholder="Kostprijs voor margeanalyse"
+                     value={editEmployeeForm.hourlyRate}
+                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, hourlyRate: e.target.value })}
+                     placeholder="0.00"
                    />
                  </div>
                  <div>
-                   <Label htmlFor="employee-external-rate">Uurtarief Extern (€)</Label>
+                   <Label htmlFor="employee-contract-hours">Contracturen</Label>
                    <Input
-                     id="employee-external-rate"
+                     id="employee-contract-hours"
                      type="number"
-                     step="0.01"
-                     value={editEmployeeForm.externalHourlyRate}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, externalHourlyRate: e.target.value })}
-                     placeholder="Verkoopprijs naar klant"
+                     value={editEmployeeForm.contractHours}
+                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, contractHours: e.target.value })}
+                     placeholder="40"
                    />
                  </div>
+               </div>
+               
+               <div className="flex items-center space-x-2">
+                 <input
+                   type="checkbox"
+                   id="employee-active"
+                   checked={editEmployeeForm.isActive}
+                   onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, isActive: e.target.checked })}
+                   className="rounded border-gray-300"
+                 />
+                 <Label htmlFor="employee-active" className="text-sm font-medium text-gray-700">
+                   Actief
+                 </Label>
                </div>
 
-               {/* Dates */}
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="employee-start-date">Startdatum</Label>
-                   <Input
-                     id="employee-start-date"
-                     type="date"
-                     value={editEmployeeForm.startDate}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, startDate: e.target.value })}
-                   />
-                 </div>
-                 <div>
-                   <Label htmlFor="employee-end-date">Einddatum (optioneel)</Label>
-                   <Input
-                     id="employee-end-date"
-                     type="date"
-                     value={editEmployeeForm.endDate}
-                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, endDate: e.target.value })}
-                   />
-                 </div>
-               </div>
 
                <div className="flex gap-2 pt-4">
                  <Button onClick={updateEmployee} className="flex-1">
@@ -1321,153 +1169,67 @@ export default function CustomersPage() {
 
         {/* New Employee Dialog */}
         <Dialog open={isNewEmployeeDialogOpen} onOpenChange={setIsNewEmployeeDialogOpen}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Nieuwe Medewerker Toevoegen</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {/* Basic Information */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="new-employee-id">Medewerker ID</Label>
-                  <Input
-                    id="new-employee-id"
-                    value={newEmployeeForm.employeeId}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, employeeId: e.target.value })}
-                    placeholder="Uniek nummer of UUID"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="new-employee-name">Naam</Label>
-                  <Input
-                    id="new-employee-name"
-                    value={newEmployeeForm.name}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, name: e.target.value })}
-                    placeholder="Voor- en achternaam"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="new-employee-name">Naam</Label>
+                <Input
+                  id="new-employee-name"
+                  value={newEmployeeForm.name}
+                  onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, name: e.target.value })}
+                  placeholder="Voor- en achternaam"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="new-employee-email">E-mail</Label>
+                <Input
+                  id="new-employee-email"
+                  type="email"
+                  value={newEmployeeForm.email}
+                  onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, email: e.target.value })}
+                  placeholder="email@fitchannel.com"
+                />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="new-employee-function">Functie / Rol</Label>
+                  <Label htmlFor="new-employee-hourly-rate">Uurtarief (€)</Label>
                   <Input
-                    id="new-employee-function"
-                    value={newEmployeeForm.function}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, function: e.target.value })}
-                    placeholder="bijv. consultant, developer, projectmanager"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="new-employee-department">Afdeling / Team</Label>
-                  <Input
-                    id="new-employee-department"
-                    value={newEmployeeForm.department}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, department: e.target.value })}
-                    placeholder="Afdeling of team naam"
-                  />
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="new-employee-email">E-mail</Label>
-                  <Input
-                    id="new-employee-email"
-                    type="email"
-                    value={newEmployeeForm.email}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, email: e.target.value })}
-                    placeholder="email@fitchannel.com"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="new-employee-phone">Telefoon</Label>
-                  <Input
-                    id="new-employee-phone"
-                    value={newEmployeeForm.phone}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, phone: e.target.value })}
-                    placeholder="+31 6 12345678"
-                  />
-                </div>
-              </div>
-
-              {/* Contract Information */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="new-employee-contract-type">Contracttype</Label>
-                  <select
-                    id="new-employee-contract-type"
-                    value={newEmployeeForm.contractType}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, contractType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="VAST">Vast</option>
-                    <option value="TIJDELIJK">Tijdelijk</option>
-                    <option value="ZZP">ZZP</option>
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="new-employee-status">Status</Label>
-                  <select
-                    id="new-employee-status"
-                    value={newEmployeeForm.status}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, status: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="ACTIEF">Actief</option>
-                    <option value="UIT_DIENST">Uit dienst</option>
-                    <option value="INACTIEF">Inactief</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Hourly Rates */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="new-employee-internal-rate">Uurtarief Intern (€)</Label>
-                  <Input
-                    id="new-employee-internal-rate"
+                    id="new-employee-hourly-rate"
                     type="number"
                     step="0.01"
-                    value={newEmployeeForm.internalHourlyRate}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, internalHourlyRate: e.target.value })}
-                    placeholder="Kostprijs voor margeanalyse"
+                    value={newEmployeeForm.hourlyRate}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, hourlyRate: e.target.value })}
+                    placeholder="0.00"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="new-employee-external-rate">Uurtarief Extern (€)</Label>
+                  <Label htmlFor="new-employee-contract-hours">Contracturen</Label>
                   <Input
-                    id="new-employee-external-rate"
+                    id="new-employee-contract-hours"
                     type="number"
-                    step="0.01"
-                    value={newEmployeeForm.externalHourlyRate}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, externalHourlyRate: e.target.value })}
-                    placeholder="Verkoopprijs naar klant"
+                    value={newEmployeeForm.contractHours}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, contractHours: e.target.value })}
+                    placeholder="40"
                   />
                 </div>
               </div>
-
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="new-employee-start-date">Startdatum</Label>
-                  <Input
-                    id="new-employee-start-date"
-                    type="date"
-                    value={newEmployeeForm.startDate}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, startDate: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="new-employee-end-date">Einddatum (optioneel)</Label>
-                  <Input
-                    id="new-employee-end-date"
-                    type="date"
-                    value={newEmployeeForm.endDate}
-                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, endDate: e.target.value })}
-                  />
-                </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="new-employee-active"
+                  checked={newEmployeeForm.isActive}
+                  onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, isActive: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="new-employee-active" className="text-sm font-medium text-gray-700">
+                  Actief
+                </Label>
               </div>
 
               <div className="flex gap-2 pt-4">
@@ -1475,8 +1237,8 @@ export default function CustomersPage() {
                   <Plus className="w-4 h-4 mr-2" />
                   Medewerker Toevoegen
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsNewEmployeeDialogOpen(false)}
                   className="flex-1"
                 >

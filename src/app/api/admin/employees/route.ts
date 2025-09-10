@@ -27,11 +27,17 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, hourlyRate, contractHours, isActive } = body;
+    const { 
+      name, 
+      email, 
+      hourlyRate,
+      contractHours,
+      isActive
+    } = body;
 
-    if (!name || !email || !hourlyRate || !contractHours) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: 'Name, email, hourly rate, and contract hours are required' },
+        { error: 'Name and email are required' },
         { status: 400 }
       );
     }
@@ -73,8 +79,8 @@ export async function POST(request: NextRequest) {
         data: {
           id: newUser.id, // Use the same ID as the user
           userId: newUser.id,
-          hourlyRate: Number(hourlyRate),
-          contractHours: Number(contractHours),
+          hourlyRate: Number(hourlyRate) || 0,
+          contractHours: Number(contractHours) || 40,
           isActive: isActive !== false,
           createdAt: new Date(),
           updatedAt: new Date()
