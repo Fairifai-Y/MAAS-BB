@@ -67,8 +67,7 @@ export default function AuthPage() {
                     footerActionLink: 'text-blue-600 hover:text-blue-700'
                   }
                 }}
-                signInForceRedirectUrl="/dashboard"
-                signInFallbackRedirectUrl="/dashboard"
+                fallbackRedirectUrl="/dashboard"
               />
             ) : (
               <SignUp 
@@ -83,8 +82,7 @@ export default function AuthPage() {
                     footerActionLink: 'text-blue-600 hover:text-blue-700'
                   }
                 }}
-                signUpForceRedirectUrl="/dashboard"
-                signUpFallbackRedirectUrl="/dashboard"
+                fallbackRedirectUrl="/dashboard"
               />
             )}
           </CardContent>
