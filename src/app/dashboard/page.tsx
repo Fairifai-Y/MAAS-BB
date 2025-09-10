@@ -20,6 +20,7 @@ import {
   Share2
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
+import EmailDomainGuard from '@/components/email-domain-guard';
 
 interface CustomerPackage {
   id: string;
@@ -233,7 +234,8 @@ export default function CustomerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <EmailDomainGuard>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -477,6 +479,7 @@ export default function CustomerDashboard() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </EmailDomainGuard>
   );
 } 

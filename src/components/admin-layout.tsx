@@ -14,6 +14,7 @@ import {
   CheckSquare
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
+import EmailDomainGuard from '@/components/email-domain-guard';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -64,7 +65,8 @@ export default function AdminLayout({ children, title, description }: AdminLayou
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <EmailDomainGuard>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,6 +131,7 @@ export default function AdminLayout({ children, title, description }: AdminLayou
           </div>
         </main>
       </div>
-    </div>
+      </div>
+    </EmailDomainGuard>
   );
 } 
