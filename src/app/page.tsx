@@ -10,22 +10,22 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <Image
                 src="/logo_fitchannel.png"
                 alt="Fitchannel Logo"
-                width={120}
-                height={40}
-                className="h-10 w-auto"
+                width={100}
+                height={32}
+                className="h-8 w-auto"
               />
             </div>
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <Link href="/auth">
-                <Button variant="outline">Inloggen</Button>
+                <Button variant="outline" size="sm">Inloggen</Button>
               </Link>
               <Link href="/auth">
-                <Button>Registreren</Button>
+                <Button size="sm">Registreren</Button>
               </Link>
             </div>
           </div>
@@ -33,37 +33,36 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <section className="py-12 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-8">
+          <div className="mb-6">
             <Image
               src="/logo_fitchannel.png"
               alt="Fitchannel Logo"
-              width={200}
-              height={60}
-              className="h-16 w-auto mx-auto mb-6"
+              width={150}
+              height={45}
+              className="h-12 w-auto mx-auto mb-4"
             />
           </div>
-          <h1 className="text-5xl font-bold mb-6">
+          <h1 className="text-3xl font-bold mb-4">
             Welkom bij Fitchannel
           </h1>
-          <p className="text-xl text-blue-100 mb-4 max-w-3xl mx-auto">
-            Het interne platform voor Fitchannel medewerkers. Beheer klanten, 
-            track uren en monitor projecten op één centrale plek.
+          <p className="text-lg text-blue-100 mb-3 max-w-2xl mx-auto">
+            Het interne platform voor Fitchannel medewerkers
           </p>
-          <p className="text-lg text-blue-200 font-semibold">
+          <p className="text-base text-blue-200 font-semibold mb-6">
             Change the Channel
           </p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center space-x-3">
             <Link href="/auth">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
-                <Shield className="w-5 h-5 mr-2" />
+              <Button className="bg-white text-blue-600 hover:bg-blue-50">
+                <Shield className="w-4 h-4 mr-2" />
                 Inloggen
               </Button>
             </Link>
             <Link href="/auth">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600">
-                <Users className="w-5 h-5 mr-2" />
+              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+                <Users className="w-4 h-4 mr-2" />
                 Registreren
               </Button>
             </Link>
@@ -72,13 +71,13 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Platform Functionaliteiten
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg text-gray-600">
               Alles wat je nodig hebt voor efficiënt klantbeheer en project tracking
             </p>
           </div>
@@ -178,13 +177,13 @@ export default function Home() {
       </section>
 
       {/* Quick Access Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Snelle Toegang
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg text-gray-600">
               Direct naar de belangrijkste functies van het platform
             </p>
           </div>
@@ -242,33 +241,52 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="mb-8">
-              <Image
-                src="/logo_fitchannel.png"
-                alt="Fitchannel Logo"
-                width={150}
-                height={45}
-                className="h-12 w-auto mx-auto mb-4"
-              />
-            </div>
-            
-            <div className="mb-8">
-              <h4 className="text-lg font-semibold mb-4">Contactgegevens</h4>
-              <div className="space-y-2 text-gray-400">
-                <p>📧 info@fitchannel.com</p>
-                <p>📞 +31 (0)20 123 4567</p>
-                <p>📍 Amsterdam, Nederland</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            {/* Left side - Logo and tagline */}
+            <div className="text-center md:text-left">
+              <div className="mb-4">
+                <Image
+                  src="/logo_fitchannel.png"
+                  alt="Fitchannel Logo"
+                  width={120}
+                  height={36}
+                  className="h-9 w-auto mx-auto md:mx-0 mb-2"
+                />
               </div>
-            </div>
-            
-            <div className="border-t border-gray-800 pt-8">
-              <p className="text-gray-400">
-                &copy; 2024 Fitchannel. Alle rechten voorbehouden.
+              <p className="text-blue-200 font-semibold text-sm">
+                Change the Channel
               </p>
             </div>
+            
+            {/* Right side - Contact info and image */}
+            <div className="text-center md:text-right">
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold mb-2 text-gray-300">Contactgegevens</h4>
+                <div className="space-y-1 text-gray-400 text-sm">
+                  <p>📧 info@fitchannel.com</p>
+                  <p>📞 +31 (0)20 123 4567</p>
+                  <p>📍 Amsterdam, Nederland</p>
+                </div>
+              </div>
+              
+              <div className="flex justify-center md:justify-end">
+                <Image
+                  src="/image002.png"
+                  alt="Fitchannel Image"
+                  width={80}
+                  height={60}
+                  className="h-12 w-auto opacity-80"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 mt-6 pt-4 text-center">
+            <p className="text-gray-400 text-sm">
+              &copy; 2024 Fitchannel. Alle rechten voorbehouden.
+            </p>
           </div>
         </div>
       </footer>
