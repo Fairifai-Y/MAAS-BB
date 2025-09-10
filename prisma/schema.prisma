@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  clerkId   String     @unique
-  email     String     @unique
-  name      String?
-  role      UserRole   @default(CUSTOMER)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  admins    admins?
-  customers customers?
-  employees employees?
-  invoices  invoices[]
+  id          String     @id @default(cuid())
+  clerkId     String     @unique
+  email       String     @unique
+  name        String?
+  role        UserRole   @default(CUSTOMER)
+  userType    String?    // CUSTOMER, EMPLOYEE, ADMIN
+  isInternal  Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  admins      admins?
+  customers   customers?
+  employees   employees?
+  invoices    invoices[]
 
   @@map("users")
 }

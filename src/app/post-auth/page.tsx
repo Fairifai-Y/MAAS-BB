@@ -31,10 +31,15 @@ export default function PostAuthRedirect() {
           const data = await response.json();
           console.log('User synced:', data);
           
-          // Redirect based on role
-          if (data.user.role === 'ADMIN') {
+          // Redirect based on userType (preferred) or role (fallback)
+          const userType = data.user.userType || data.user.role;
+          
+          if (userType === 'ADMIN') {
             router.replace('/admin');
+          } else if (userType === 'EMPLOYEE') {
+            router.replace('/dashboard');
           } else {
+            // CUSTOMER - redirect to customer portal or dashboard
             router.replace('/dashboard');
           }
         } else {
@@ -51,8 +56,13 @@ export default function PostAuthRedirect() {
       }
     };
 
-    syncUser();
-  }, [isLoaded, isSignedIn, user, router, isSyncing]);
+    // Add a small delay to prevent race conditions
+    const timeoutId = setTimeout(() => {
+      syncUser();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [isLoaded, isSignedIn, user?.id, router]);
 
   if (isSyncing) {
     return (

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 
+function determineUserType(email: string, role: string): string {
+  if (role === 'ADMIN') return 'ADMIN';
+  if (email.includes('@fitchannel.com')) return 'EMPLOYEE';
+  return 'CUSTOMER';
+}
+
 export async function POST() {
   try {
     const { userId } = await auth();
@@ -51,28 +57,43 @@ export async function POST() {
         });
       }
 
-      // Check if employee record exists, if not create one
-      const existingEmployee = await prisma.employees.findUnique({
-        where: { userId: existingUser.id }
-      });
-
-      if (!existingEmployee) {
-        // Create employee record for existing user
-        await prisma.employees.create({
-          data: {
-            id: existingUser.id,
-            userId: existingUser.id,
-            hourlyRate: 0, // Default rate, can be updated later
-            contractHours: 40,
-            isActive: true,
-            function: existingUser.role === 'ADMIN' ? 'Admin' : 'Medewerker',
-            department: existingUser.role === 'ADMIN' ? 'Management' : 'Operations',
-            internalHourlyRate: 0, // Default rate, can be updated later
-            createdAt: new Date(),
-            updatedAt: new Date()
+      // Update userType if not set (backward compatibility)
+      if (!existingUser.userType) {
+        const userType = determineUserType(existingUser.email, existingUser.role);
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: { 
+            userType,
+            isInternal: userType !== 'CUSTOMER'
           }
         });
-        console.log(`✅ Created employee record for existing user: ${existingUser.email}`);
+        existingUser.userType = userType;
+      }
+
+      // Only create employee record for internal users
+      if (existingUser.userType === 'EMPLOYEE' || existingUser.userType === 'ADMIN') {
+        const existingEmployee = await prisma.employees.findUnique({
+          where: { userId: existingUser.id }
+        });
+
+        if (!existingEmployee) {
+          // Create employee record for internal user
+          await prisma.employees.create({
+            data: {
+              id: existingUser.id,
+              userId: existingUser.id,
+              hourlyRate: 0, // Default rate, can be updated later
+              contractHours: 40,
+              isActive: true,
+              function: existingUser.userType === 'ADMIN' ? 'Admin' : 'Medewerker',
+              department: existingUser.userType === 'ADMIN' ? 'Management' : 'Operations',
+              internalHourlyRate: 0, // Default rate, can be updated later
+              createdAt: new Date(),
+              updatedAt: new Date()
+            }
+          });
+          console.log(`✅ Created employee record for internal user: ${existingUser.email}`);
+        }
       }
 
       return NextResponse.json({
@@ -81,10 +102,14 @@ export async function POST() {
           id: existingUser.id,
           email: existingUser.email,
           role: existingUser.role,
+          userType: existingUser.userType,
           clerkId: userId
         }
       });
     } else {
+      // Determine user type for new user
+      const userType = determineUserType(email, 'CUSTOMER');
+      
       // Create new user if they don't exist
       const newUser = await prisma.user.create({
         data: {
@@ -93,27 +118,39 @@ export async function POST() {
           name: clerkUserData.first_name && clerkUserData.last_name 
             ? `${clerkUserData.first_name} ${clerkUserData.last_name}`
             : clerkUserData.first_name || 'User',
-          role: 'CUSTOMER' // Default role
+          role: 'CUSTOMER', // Default role
+          userType,
+          isInternal: userType !== 'CUSTOMER'
         }
       });
 
-      // Automatically create employee record for new user
-      await prisma.employees.create({
-        data: {
-          id: newUser.id,
-          userId: newUser.id,
-          hourlyRate: 0, // Default rate, can be updated later
-          contractHours: 40,
-          isActive: true,
-          function: 'Medewerker',
-          department: 'Operations',
-          internalHourlyRate: 0, // Default rate, can be updated later
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      });
+      // Only create employee record for internal users
+      if (userType === 'EMPLOYEE' || userType === 'ADMIN') {
+        const existingEmployee = await prisma.employees.findUnique({
+          where: { userId: newUser.id }
+        });
 
-      console.log(`✅ Created user and employee record for: ${newUser.email}`);
+        if (!existingEmployee) {
+          // Automatically create employee record for internal user
+          await prisma.employees.create({
+            data: {
+              id: newUser.id,
+              userId: newUser.id,
+              hourlyRate: 0, // Default rate, can be updated later
+              contractHours: 40,
+              isActive: true,
+              function: userType === 'ADMIN' ? 'Admin' : 'Medewerker',
+              department: userType === 'ADMIN' ? 'Management' : 'Operations',
+              internalHourlyRate: 0, // Default rate, can be updated later
+              createdAt: new Date(),
+              updatedAt: new Date()
+            }
+          });
+          console.log(`✅ Created employee record for new internal user: ${newUser.email}`);
+        }
+      }
+
+      console.log(`✅ Created user (${userType}) for: ${newUser.email}`);
 
       return NextResponse.json({
         message: 'User created successfully',
@@ -121,6 +158,7 @@ export async function POST() {
           id: newUser.id,
           email: newUser.email,
           role: newUser.role,
+          userType: newUser.userType,
           clerkId: userId
         }
       });

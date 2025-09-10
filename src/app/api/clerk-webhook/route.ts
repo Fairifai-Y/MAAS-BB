@@ -3,6 +3,11 @@ import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 
+function determineUserType(email: string): string {
+  if (email.includes('@fitchannel.com')) return 'EMPLOYEE';
+  return 'CUSTOMER';
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Get the headers
@@ -55,35 +60,63 @@ export async function POST(request: NextRequest) {
         console.log(`👤 New user created: ${name} (${email})`);
 
         try {
+          // Check if user already exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email }
+          });
+
+          if (existingUser) {
+            console.log(`⚠️  User already exists: ${email}, skipping creation`);
+            return NextResponse.json({ message: 'User already exists' });
+          }
+
+          // Determine user type
+          const userType = determineUserType(email);
+
           // Create user in database
           const newUser = await prisma.user.create({
             data: {
               clerkId: id,
               email,
               name,
-              role: 'CUSTOMER' // Default role
+              role: 'CUSTOMER', // Default role
+              userType,
+              isInternal: userType !== 'CUSTOMER'
             }
           });
 
-          // Automatically create employee record
-          await prisma.employees.create({
-            data: {
-              id: newUser.id,
-              userId: newUser.id,
-              hourlyRate: 0, // Default rate, can be updated later
-              contractHours: 40,
-              isActive: true,
-              function: 'Medewerker',
-              department: 'Operations',
-              internalHourlyRate: 0, // Default rate, can be updated later
-              createdAt: new Date(),
-              updatedAt: new Date()
-            }
-          });
+          // Only create employee record for internal users
+          if (userType === 'EMPLOYEE' || userType === 'ADMIN') {
+            const existingEmployee = await prisma.employees.findUnique({
+              where: { userId: newUser.id }
+            });
 
-          console.log(`✅ Created user and employee record for: ${email}`);
+            if (!existingEmployee) {
+              // Automatically create employee record
+              await prisma.employees.create({
+                data: {
+                  id: newUser.id,
+                  userId: newUser.id,
+                  hourlyRate: 0, // Default rate, can be updated later
+                  contractHours: 40,
+                  isActive: true,
+                  function: userType === 'ADMIN' ? 'Admin' : 'Medewerker',
+                  department: userType === 'ADMIN' ? 'Management' : 'Operations',
+                  internalHourlyRate: 0, // Default rate, can be updated later
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                }
+              });
+              console.log(`✅ Created employee record for internal user: ${email}`);
+            } else {
+              console.log(`⚠️  Employee record already exists for: ${email}`);
+            }
+          }
+
+          console.log(`✅ Created user (${userType}) for: ${email}`);
         } catch (error) {
           console.error('❌ Error creating user/employee record:', error);
+          // Don't throw error to prevent webhook retries
         }
       }
     }
