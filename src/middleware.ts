@@ -8,14 +8,14 @@ const isProtectedRoute = createRouteMatcher([
   '/test-auth(.*)'
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   // Protect routes that require authentication
   if (isProtectedRoute(req)) {
-    auth().protect();
+    await auth().protect();
   }
 
   // Get the current user from Clerk
-  const { userId, sessionClaims } = auth();
+  const { userId, sessionClaims } = await auth();
   
   // If user is authenticated, check email domain
   if (userId && sessionClaims?.email) {
