@@ -19,8 +19,7 @@ export default function RootLayout({
     <ClerkProvider
       signInUrl="/auth"
       signUpUrl="/auth"
-      afterSignInUrl="/dashboard"
-      afterSignUpUrl="/dashboard"
+      fallbackRedirectUrl="/dashboard"
     >
       <html lang="nl">
         <body className={inter.className}>
