@@ -237,7 +237,7 @@ export default function EmployeeActionsPage() {
     if (!editingAction) return;
 
     try {
-      const response = await fetch(`/api/admin/actions/${editingAction.id}`, {
+      const response = await fetch(`/api/employee/actions/${editingAction.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm)
@@ -268,7 +268,7 @@ export default function EmployeeActionsPage() {
     if (!deletingAction) return;
 
     try {
-      const response = await fetch(`/api/admin/actions/${deletingAction.id}`, {
+      const response = await fetch(`/api/employee/actions/${deletingAction.id}`, {
         method: 'DELETE'
       });
 
