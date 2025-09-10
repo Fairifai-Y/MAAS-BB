@@ -23,7 +23,7 @@ import CustomerLayout from '@/components/customer-layout';
 
 interface CustomerPackage {
   id: string;
-  package: {
+  packages: {
     name: string;
     description: string;
     maxHours: number;
@@ -128,7 +128,7 @@ export default function CustomerDashboard() {
       );
 
       const totalMaxHours = packages.reduce((sum: number, pkg: CustomerPackage) => 
-        sum + pkg.package.maxHours, 0
+        sum + pkg.packages.maxHours, 0
       );
 
       const completedActivities = activities.filter((a: Activity) => 
@@ -228,8 +228,8 @@ export default function CustomerDashboard() {
 
   // Calculate package usage percentage
   const getPackageUsagePercentage = (pkg: CustomerPackage) => {
-    if (pkg.package.maxHours === 0) return 0;
-    return Math.min((dashboardData.totalHoursUsed / pkg.package.maxHours) * 100, 100);
+    if (pkg.packages.maxHours === 0) return 0;
+    return Math.min((dashboardData.totalHoursUsed / pkg.packages.maxHours) * 100, 100);
   };
 
   return (
@@ -238,8 +238,17 @@ export default function CustomerDashboard() {
       {/* Package Overview Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Mijn Pakket Overzicht</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {dashboardData.packages.map((pkg) => {
+        {dashboardData.packages.length === 0 ? (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Geen pakketten gevonden</h3>
+              <p className="text-gray-600">Er zijn momenteel geen pakketten gekoppeld aan jouw account.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {dashboardData.packages.map((pkg) => {
             const usagePercentage = getPackageUsagePercentage(pkg);
             const remainingPercentage = 100 - usagePercentage;
             
@@ -248,8 +257,8 @@ export default function CustomerDashboard() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-xl">{pkg.package.name}</CardTitle>
-                      <p className="text-gray-600 mt-1">{pkg.package.description}</p>
+                      <CardTitle className="text-xl">{pkg.packages.name}</CardTitle>
+                      <p className="text-gray-600 mt-1">{pkg.packages.description}</p>
                     </div>
                     <Badge className={getStatusColor(pkg.status)}>
                       {pkg.status === 'ACTIVE' ? 'Actief' : pkg.status}
@@ -261,11 +270,11 @@ export default function CustomerDashboard() {
                     {/* Package Details */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-2xl font-bold text-amber-600">€{pkg.package.price}</div>
+                        <div className="text-2xl font-bold text-amber-600">€{pkg.packages.price}</div>
                         <div className="text-sm text-gray-600">Maandprijs</div>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{pkg.package.maxHours}</div>
+                        <div className="text-2xl font-bold text-green-600">{pkg.packages.maxHours}</div>
                         <div className="text-sm text-gray-600">Uren per maand</div>
                       </div>
                     </div>
@@ -303,7 +312,8 @@ export default function CustomerDashboard() {
               </Card>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Stats */}
@@ -364,24 +374,32 @@ export default function CustomerDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {dashboardData.activities.slice(0, 5).map((activity) => (
-              <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium">{activity.description}</p>
-                  <p className="text-sm text-gray-600">
-                    {activity.employee.user.name} • {new Date(activity.date).toLocaleDateString()}
-                  </p>
+          {dashboardData.activities.length === 0 ? (
+            <div className="text-center py-8">
+              <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Geen activiteiten gevonden</h3>
+              <p className="text-gray-600">Er zijn momenteel geen activiteiten gekoppeld aan jouw pakketten.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {dashboardData.activities.slice(0, 5).map((activity) => (
+                <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">{activity.description}</p>
+                    <p className="text-sm text-gray-600">
+                      {activity.employee.user.name} • {new Date(activity.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{activity.hours} uren</p>
+                    <Badge className={getActivityStatusColor(activity.status)}>
+                      {activity.status}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium">{activity.hours} uren</p>
-                  <Badge className={getActivityStatusColor(activity.status)}>
-                    {activity.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </CustomerLayout>
