@@ -243,47 +243,111 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Left side - Logo and tagline */}
-            <div className="text-center md:text-left">
-              <div className="mb-4">
-                <Image
-                  src="/logo_fitchannel.png"
-                  alt="Fitchannel Logo"
-                  width={120}
-                  height={36}
-                  className="h-9 w-auto mx-auto md:mx-0 mb-2"
-                />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Programma's */}
+            <div className="footer-menu">
+              <h4 className="text-lg font-semibold mb-4 text-white">Programma's</h4>
+              <div className="space-y-2">
+                <a href="https://fitchannel.com/programmas/fiesta-fit" className="block text-gray-400 hover:text-white transition-colors">
+                  Fiesta Fit
+                </a>
+                <a href="https://fitchannel.com/programmas/mark" className="block text-gray-400 hover:text-white transition-colors">
+                  Fit met Mark
+                </a>
+                <a href="https://fitchannel.com/programmas/in-shape" className="block text-gray-400 hover:text-white transition-colors">
+                  In shape met Wout & Tatyana
+                </a>
+                <a href="https://fitchannel.com/programmas/boksen" className="block text-gray-400 hover:text-white transition-colors">
+                  Cardioboksen met Remy
+                </a>
+                <a href="https://fitchannel.com/programmas/perfect-body-met-kasia-rain" className="block text-gray-400 hover:text-white transition-colors">
+                  Your Perfect Body
+                </a>
+                <a href="https://fitchannel.com/programmas/groove" className="block text-gray-400 hover:text-white transition-colors">
+                  Groove
+                </a>
+                <a href="https://fitchannel.com/programmas/afvallen-met-carlos-lens" className="block text-gray-400 hover:text-white transition-colors">
+                  Afvallen met Carlos
+                </a>
+                <a href="https://fitchannel.com/programmas/circuittraining" className="block text-gray-400 hover:text-white transition-colors">
+                  Circuittraining
+                </a>
+                <a href="https://fitchannel.com/programmas/spieren" className="block text-gray-400 hover:text-white transition-colors">
+                  Spieropbouw met Radmilo
+                </a>
               </div>
-              <p className="text-blue-200 font-semibold text-sm">
-                Change the Channel
-              </p>
             </div>
-            
-            {/* Right side - Contact info and image */}
-            <div className="text-center md:text-right">
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold mb-2 text-gray-300">Contactgegevens</h4>
-                <div className="space-y-1 text-gray-400 text-sm">
+
+            {/* Algemeen */}
+            <div className="footer-menu">
+              <h4 className="text-lg font-semibold mb-4 text-white">Algemeen</h4>
+              <div className="space-y-2">
+                <a href="https://fitchannel.com/faq" className="block text-gray-400 hover:text-white transition-colors">
+                  Veelgestelde vragen
+                </a>
+                <a href="https://fitchannel.com/contact" className="block text-gray-400 hover:text-white transition-colors">
+                  Contact
+                </a>
+                <a href="https://fitchannel.com/disclaimer" className="block text-gray-400 hover:text-white transition-colors">
+                  Disclaimer
+                </a>
+                <a href="https://fitchannelcom.presscloud.ai/persberichten" className="block text-gray-400 hover:text-white transition-colors">
+                  Pers
+                </a>
+                <a href="https://fitchannel.com/algemene-voorwaarden" className="block text-gray-400 hover:text-white transition-colors">
+                  Algemene voorwaarden
+                </a>
+              </div>
+            </div>
+
+            {/* Social */}
+            <div className="footer-menu">
+              <h4 className="text-lg font-semibold mb-4 text-white">Social</h4>
+              <div className="space-y-2">
+                <a href="https://www.facebook.com/fitchannelnl" target="_blank" rel="noopener noreferrer" className="block text-gray-400 hover:text-white transition-colors">
+                  Facebook
+                </a>
+                <a href="https://www.instagram.com/fitchannel_com/" target="_blank" rel="noopener noreferrer" className="block text-gray-400 hover:text-white transition-colors">
+                  Instagram
+                </a>
+              </div>
+            </div>
+
+            {/* Platform Info */}
+            <div className="footer-menu">
+              <h4 className="text-lg font-semibold mb-4 text-white">Platform</h4>
+              <div className="space-y-2">
+                <div className="mb-4">
+                  <Image
+                    src="/logo_fitchannel.png"
+                    alt="Fitchannel Logo"
+                    width={100}
+                    height={30}
+                    className="h-8 w-auto mb-2"
+                  />
+                  <p className="text-blue-200 font-semibold text-sm">
+                    Change the Channel
+                  </p>
+                </div>
+                <div className="text-gray-400 text-sm space-y-1">
                   <p>📧 info@fitchannel.com</p>
                   <p>📞 +31 (0)20 123 4567</p>
                   <p>📍 Amsterdam, Nederland</p>
                 </div>
-              </div>
-              
-              <div className="flex justify-center md:justify-end">
-                <Image
-                  src="/image002.png"
-                  alt="Fitchannel Image"
-                  width={80}
-                  height={60}
-                  className="h-12 w-auto opacity-80"
-                />
+                <div className="mt-4">
+                  <Image
+                    src="/image002.png"
+                    alt="Fitchannel Image"
+                    width={60}
+                    height={45}
+                    className="h-10 w-auto opacity-80"
+                  />
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-6 pt-4 text-center">
+          <div className="border-t border-gray-800 mt-8 pt-6 text-center">
             <p className="text-gray-400 text-sm">
               &copy; 2024 Fitchannel. Alle rechten voorbehouden.
             </p>
