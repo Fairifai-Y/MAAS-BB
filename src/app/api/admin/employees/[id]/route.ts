@@ -16,7 +16,12 @@ export async function PUT(
       name,
       email,
       hourlyRate,
-      contractHours
+      contractHours,
+      isActive,
+      function: employeeFunction,
+      department,
+      internalHourlyRate,
+      documentUrl
     } = body;
 
     // Validate required fields
@@ -50,10 +55,15 @@ export async function PUT(
       contractHours: existingEmployee.contractHours
     });
 
-    // Update employee data - simplified approach
+    // Update employee data
     const employeeData = {
       hourlyRate: Number(hourlyRate) || 0,
       contractHours: Number(contractHours) || 0,
+      isActive: isActive !== false,
+      function: employeeFunction || null,
+      department: department || null,
+      internalHourlyRate: internalHourlyRate ? Number(internalHourlyRate) : null,
+      documentUrl: documentUrl || null,
       updatedAt: new Date()
     };
     

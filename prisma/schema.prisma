@@ -143,16 +143,20 @@ model customers {
 }
 
 model employees {
-  id            String     @id
-  userId        String     @unique
-  hourlyRate    Decimal    @db.Decimal(10, 2)
-  contractHours Int        @default(40) // Contracturen per maand
-  isActive      Boolean    @default(true)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime
-  activities    Activity[]
-  ownedActions  Action[]
-  users         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String     @id
+  userId              String     @unique
+  hourlyRate          Decimal    @db.Decimal(10, 2)
+  contractHours       Int        @default(40) // Contracturen per maand
+  isActive            Boolean    @default(true)
+  function            String?    // Functie / rol
+  department          String?    // Afdeling / team
+  internalHourlyRate  Decimal?   @db.Decimal(10, 2) // Uurtarief intern
+  documentUrl         String?    // URL naar opgeslagen document (PDF/Word)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime
+  activities          Activity[]
+  ownedActions        Action[]
+  users               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model invoices {

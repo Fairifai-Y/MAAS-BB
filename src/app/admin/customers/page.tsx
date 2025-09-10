@@ -59,21 +59,14 @@ interface Employee {
   hourlyRate: number;
   contractHours: number;
   isActive: boolean;
+  function?: string;
+  department?: string;
+  internalHourlyRate?: number;
+  documentUrl?: string;
   users: {
     email: string;
     name: string;
   };
-  // Extended fields stored in user data (we'll use JSON in user name field for now)
-  employeeId?: string;
-  function?: string;
-  department?: string;
-  phone?: string;
-  contractType?: 'VAST' | 'TIJDELIJK' | 'ZZP';
-  internalHourlyRate?: number;
-  externalHourlyRate?: number;
-  startDate?: string;
-  endDate?: string;
-  status?: 'ACTIEF' | 'UIT_DIENST' | 'INACTIEF';
 }
 
 export default function CustomersPage() {
@@ -103,7 +96,11 @@ export default function CustomersPage() {
     email: '',
     hourlyRate: '',
     contractHours: '',
-    isActive: true
+    isActive: true,
+    function: '',
+    department: '',
+    internalHourlyRate: '',
+    documentUrl: ''
   });
   
   // Delete dialogs
@@ -130,7 +127,11 @@ export default function CustomersPage() {
     email: '',
     hourlyRate: '',
     contractHours: '',
-    isActive: true
+    isActive: true,
+    function: '',
+    department: '',
+    internalHourlyRate: '',
+    documentUrl: ''
   });
 
   useEffect(() => {
@@ -259,7 +260,11 @@ export default function CustomersPage() {
       email: employee.users.email || '',
       hourlyRate: String(employee.hourlyRate || ''),
       contractHours: String(employee.contractHours || ''),
-      isActive: employee.isActive
+      isActive: employee.isActive,
+      function: employee.function || '',
+      department: employee.department || '',
+      internalHourlyRate: String(employee.internalHourlyRate || ''),
+      documentUrl: employee.documentUrl || ''
     });
     setIsEditEmployeeDialogOpen(true);
   };
@@ -277,7 +282,8 @@ export default function CustomersPage() {
       const requestBody = {
         ...editEmployeeForm,
         hourlyRate: Number(editEmployeeForm.hourlyRate) || 0,
-        contractHours: Number(editEmployeeForm.contractHours) || 40
+        contractHours: Number(editEmployeeForm.contractHours) || 40,
+        internalHourlyRate: Number(editEmployeeForm.internalHourlyRate) || 0
       };
       
       console.log('🔄 Sending update request:', requestBody);
@@ -473,7 +479,11 @@ export default function CustomersPage() {
       email: '',
       hourlyRate: '',
       contractHours: '',
-      isActive: true
+      isActive: true,
+      function: '',
+      department: '',
+      internalHourlyRate: '',
+      documentUrl: ''
     });
     setIsNewEmployeeDialogOpen(true);
   };
@@ -489,7 +499,8 @@ export default function CustomersPage() {
       const requestBody = {
         ...newEmployeeForm,
         hourlyRate: Number(newEmployeeForm.hourlyRate) || 0,
-        contractHours: Number(newEmployeeForm.contractHours) || 40
+        contractHours: Number(newEmployeeForm.contractHours) || 40,
+        internalHourlyRate: Number(newEmployeeForm.internalHourlyRate) || 0
       };
       
       console.log('🔄 Creating new employee:', requestBody);
@@ -699,7 +710,7 @@ export default function CustomersPage() {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-lg">{employee.users.name}</CardTitle>
-                          <p className="text-sm text-gray-600">Medewerker</p>
+                          <p className="text-sm text-gray-600">{employee.function || 'Medewerker'}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge className={
@@ -733,15 +744,39 @@ export default function CustomersPage() {
                           <span>{employee.users.email}</span>
                         </div>
                         
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Euro className="w-4 h-4 mr-2" />
-                          <span>Uurtarief: €{employee.hourlyRate}</span>
+                        {employee.department && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Building className="w-4 h-4 mr-2" />
+                            <span>{employee.department}</span>
+                          </div>
+                        )}
+                        
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="flex items-center text-gray-600">
+                            <Euro className="w-4 h-4 mr-2" />
+                            <span>Extern: €{employee.hourlyRate}</span>
+                          </div>
+                          {employee.internalHourlyRate && (
+                            <div className="flex items-center text-gray-600">
+                              <Euro className="w-4 h-4 mr-2" />
+                              <span>Intern: €{employee.internalHourlyRate}</span>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="flex items-center text-sm text-gray-600">
                           <Clock className="w-4 h-4 mr-2" />
                           <span>Contracturen: {employee.contractHours}h/maand</span>
                         </div>
+                        
+                        {employee.documentUrl && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <FileText className="w-4 h-4 mr-2" />
+                            <a href={employee.documentUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                              Document bekijken
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -784,7 +819,7 @@ export default function CustomersPage() {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">
-                      {employees.filter(e => e.status === 'ACTIEF').length}
+                      {employees.filter(e => e.isActive).length}
                     </div>
                     <div className="text-sm text-gray-600">Actieve Medewerkers</div>
                   </div>
@@ -928,7 +963,28 @@ export default function CustomersPage() {
                
                <div className="grid grid-cols-2 gap-4">
                  <div>
-                   <Label htmlFor="employee-hourly-rate">Uurtarief (€)</Label>
+                   <Label htmlFor="employee-function">Functie / Rol</Label>
+                   <Input
+                     id="employee-function"
+                     value={editEmployeeForm.function}
+                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, function: e.target.value })}
+                     placeholder="bijv. consultant, developer, projectmanager"
+                   />
+                 </div>
+                 <div>
+                   <Label htmlFor="employee-department">Afdeling / Team</Label>
+                   <Input
+                     id="employee-department"
+                     value={editEmployeeForm.department}
+                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, department: e.target.value })}
+                     placeholder="Afdeling of team naam"
+                   />
+                 </div>
+               </div>
+               
+               <div className="grid grid-cols-2 gap-4">
+                 <div>
+                   <Label htmlFor="employee-hourly-rate">Uurtarief Extern (€)</Label>
                    <Input
                      id="employee-hourly-rate"
                      type="number"
@@ -939,6 +995,20 @@ export default function CustomersPage() {
                    />
                  </div>
                  <div>
+                   <Label htmlFor="employee-internal-rate">Uurtarief Intern (€)</Label>
+                   <Input
+                     id="employee-internal-rate"
+                     type="number"
+                     step="0.01"
+                     value={editEmployeeForm.internalHourlyRate}
+                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, internalHourlyRate: e.target.value })}
+                     placeholder="0.00"
+                   />
+                 </div>
+               </div>
+               
+               <div className="grid grid-cols-2 gap-4">
+                 <div>
                    <Label htmlFor="employee-contract-hours">Contracturen</Label>
                    <Input
                      id="employee-contract-hours"
@@ -946,6 +1016,15 @@ export default function CustomersPage() {
                      value={editEmployeeForm.contractHours}
                      onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, contractHours: e.target.value })}
                      placeholder="40"
+                   />
+                 </div>
+                 <div>
+                   <Label htmlFor="employee-document">Document URL</Label>
+                   <Input
+                     id="employee-document"
+                     value={editEmployeeForm.documentUrl}
+                     onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, documentUrl: e.target.value })}
+                     placeholder="https://example.com/document.pdf"
                    />
                  </div>
                </div>
@@ -1197,7 +1276,28 @@ export default function CustomersPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="new-employee-hourly-rate">Uurtarief (€)</Label>
+                  <Label htmlFor="new-employee-function">Functie / Rol</Label>
+                  <Input
+                    id="new-employee-function"
+                    value={newEmployeeForm.function}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, function: e.target.value })}
+                    placeholder="bijv. consultant, developer, projectmanager"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-employee-department">Afdeling / Team</Label>
+                  <Input
+                    id="new-employee-department"
+                    value={newEmployeeForm.department}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, department: e.target.value })}
+                    placeholder="Afdeling of team naam"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="new-employee-hourly-rate">Uurtarief Extern (€)</Label>
                   <Input
                     id="new-employee-hourly-rate"
                     type="number"
@@ -1208,6 +1308,20 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div>
+                  <Label htmlFor="new-employee-internal-rate">Uurtarief Intern (€)</Label>
+                  <Input
+                    id="new-employee-internal-rate"
+                    type="number"
+                    step="0.01"
+                    value={newEmployeeForm.internalHourlyRate}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, internalHourlyRate: e.target.value })}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <Label htmlFor="new-employee-contract-hours">Contracturen</Label>
                   <Input
                     id="new-employee-contract-hours"
@@ -1215,6 +1329,15 @@ export default function CustomersPage() {
                     value={newEmployeeForm.contractHours}
                     onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, contractHours: e.target.value })}
                     placeholder="40"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-employee-document">Document URL</Label>
+                  <Input
+                    id="new-employee-document"
+                    value={newEmployeeForm.documentUrl}
+                    onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, documentUrl: e.target.value })}
+                    placeholder="https://example.com/document.pdf"
                   />
                 </div>
               </div>

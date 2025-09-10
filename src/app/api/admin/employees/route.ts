@@ -32,7 +32,11 @@ export async function POST(request: NextRequest) {
       email, 
       hourlyRate,
       contractHours,
-      isActive
+      isActive,
+      function: employeeFunction,
+      department,
+      internalHourlyRate,
+      documentUrl
     } = body;
 
     if (!name || !email) {
@@ -82,6 +86,10 @@ export async function POST(request: NextRequest) {
           hourlyRate: Number(hourlyRate) || 0,
           contractHours: Number(contractHours) || 40,
           isActive: isActive !== false,
+          function: employeeFunction || null,
+          department: department || null,
+          internalHourlyRate: internalHourlyRate ? Number(internalHourlyRate) : null,
+          documentUrl: documentUrl || null,
           createdAt: new Date(),
           updatedAt: new Date()
         }
