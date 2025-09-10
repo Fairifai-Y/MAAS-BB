@@ -1,0 +1,45 @@
+# Robots.txt for Fitchannel Platform
+# This is an internal platform - no indexing allowed
+
+User-agent: *
+Disallow: /
+
+# Block all search engines
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: Twitterbot
+Disallow: /
+
+User-agent: LinkedInBot
+Disallow: /
+
+User-agent: WhatsApp
+Disallow: /
+
+User-agent: Applebot
+Disallow: /
+
+User-agent: ia_archiver
+Disallow: /
+
+# No sitemap provided
+# Sitemap: 

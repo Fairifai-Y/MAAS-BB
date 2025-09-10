@@ -1,0 +1,27 @@
+# .htaccess for Fitchannel Platform
+# Prevent indexing and crawling
+
+# Block all robots
+<Files "robots.txt">
+    Header set X-Robots-Tag "noindex, nofollow"
+</Files>
+
+# Add noindex headers to all pages
+Header always set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+
+# Block common crawlers
+RewriteEngine On
+RewriteCond %{HTTP_USER_AGENT} (googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|applebot|ia_archiver) [NC]
+RewriteRule .* - [F,L]
+
+# Prevent access to sensitive files
+<FilesMatch "\.(env|log|sql|bak|backup|old|tmp)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
