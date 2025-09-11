@@ -8,23 +8,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     console.log('📧 Request body:', body);
     
-    // Clerk expects a simple success response for email verification
-    return NextResponse.json({ 
-      success: true,
-      verified: true
+    // Clerk expects a specific response format for email verification
+    // Return a simple 200 OK response with empty JSON body
+    return new Response('{}', { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
     console.error('❌ Email verification error:', error);
-    return NextResponse.json(
-      { error: 'Email verification failed' },
-      { status: 500 }
-    );
+    return new Response(null, { status: 500 });
   }
 }
 
 export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+  return new Response(null, { status: 405 });
 }

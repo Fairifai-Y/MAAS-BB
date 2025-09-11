@@ -10,10 +10,11 @@ export async function POST(request: NextRequest) {
     console.log('📦 Request body:', body);
     
     // Return a simple success response for any auth endpoint
-    return NextResponse.json({ 
-      success: true,
-      message: 'Auth endpoint reached',
-      path: pathname
+    return new Response('{}', { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
     console.error('❌ Auth catch-all error:', error);

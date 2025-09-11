@@ -10,10 +10,11 @@ export async function POST(request: NextRequest) {
     console.log('📦 Request body:', body);
     
     // Return a simple success response for any Clerk endpoint
-    return NextResponse.json({ 
-      success: true,
-      message: 'Clerk endpoint reached',
-      path: pathname
+    return new Response('{}', { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
     console.error('❌ Clerk catch-all error:', error);
