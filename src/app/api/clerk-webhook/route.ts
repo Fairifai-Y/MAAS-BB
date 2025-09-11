@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
+import { getAllowedEmailDomains } from '@/lib/auth-utils';
 
 function determineUserType(email: string): string {
-  if (email.includes('@fitchannel.com')) return 'EMPLOYEE';
+  const allowedDomains = getAllowedEmailDomains();
+  const isInternalDomain = allowedDomains.some(domain => 
+    email.toLowerCase().endsWith(domain.toLowerCase())
+  );
+  
+  if (isInternalDomain) return 'EMPLOYEE';
   return 'CUSTOMER';
 }
 
@@ -118,6 +124,14 @@ export async function POST(request: NextRequest) {
           console.error('❌ Error creating user/employee record:', error);
           // Don't throw error to prevent webhook retries
         }
+      }
+    } else if (eventType === 'email.created' || eventType === 'email.updated') {
+      // Handle email verification events
+      console.log(`📧 Email event received: ${eventType}`);
+      const { email_address, verification } = evt.data;
+      
+      if (email_address && verification) {
+        console.log(`📧 Email verification status for ${email_address}: ${verification.status}`);
       }
     }
 

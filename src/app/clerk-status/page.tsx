@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
 
 export default function ClerkStatusPage() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -22,7 +23,8 @@ export default function ClerkStatusPage() {
   }
 
   const primaryEmail = user?.emailAddresses.find(ea => ea.id === user.primaryEmailAddressId)?.emailAddress;
-  const isDomainValid = primaryEmail ? primaryEmail.endsWith('@fitchannel.com') : false;
+  const isDomainValid = primaryEmail ? isValidEmailDomain(primaryEmail) : false;
+  const allowedDomains = getAllowedEmailDomains();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
@@ -101,8 +103,8 @@ export default function ClerkStatusPage() {
                 )}
                 <span className={isDomainValid ? 'text-green-700' : 'text-red-700'}>
                   {isDomainValid 
-                    ? 'Email domain is valid (@fitchannel.com)' 
-                    : `Email domain is invalid. Expected @fitchannel.com, got ${primaryEmail ? primaryEmail.split('@')[1] : 'unknown'}`
+                    ? `Email domain is valid (${allowedDomains.join(', ')})` 
+                    : `Email domain is invalid. Expected one of: ${allowedDomains.join(', ')}, got ${primaryEmail ? primaryEmail.split('@')[1] : 'unknown'}`
                   }
                 </span>
               </div>

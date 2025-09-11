@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { isValidEmailDomain } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
 
 interface EmailDomainGuardProps {
   children: React.ReactNode;
@@ -61,11 +61,12 @@ export default function EmailDomainGuard({
   // Check email domain
   const email = user.primaryEmailAddress?.emailAddress;
   if (email && !isValidEmailDomain(email)) {
+    const allowedDomains = getAllowedEmailDomains();
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Toegang Geweigerd</h2>
-          <p className="text-gray-600 mb-2">Alleen @fitchannel.com email adressen zijn toegestaan.</p>
+          <p className="text-gray-600 mb-2">Alleen email adressen van de volgende domeinen zijn toegestaan: {allowedDomains.join(', ')}</p>
           <p className="text-sm text-gray-500 mb-6">Uw email: {email}</p>
           <button 
             onClick={() => router.push('/auth')}

@@ -18,6 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 import AdminLayout from '@/components/admin-layout';
+import { isValidEmailDomain, getEmailDomainError } from '@/lib/auth-utils';
 
 interface User {
   id: string;
@@ -68,8 +69,8 @@ export default function AdminUsersPage() {
       return;
     }
 
-    if (!newUser.email.endsWith('@fitchannel.com')) {
-      alert('Alleen @fitchannel.com email adressen zijn toegestaan');
+    if (!isValidEmailDomain(newUser.email)) {
+      alert(getEmailDomainError(newUser.email));
       return;
     }
 
@@ -222,7 +223,7 @@ export default function AdminUsersPage() {
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder="naam@fitchannel.com"
+                    placeholder="naam@champ.nl"
                     required
                   />
                 </div>

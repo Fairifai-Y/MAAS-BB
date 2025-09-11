@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { isValidEmailDomain } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
 
 interface MockUser {
   id: string;
@@ -41,7 +41,7 @@ export const useMockAuth = (): MockAuthContextType => {
 // Mock sign in function
 export const mockSignIn = (email: string, name: string) => {
   if (!isValidEmailDomain(email)) {
-    throw new Error('Alleen @fitchannel.com email adressen zijn toegestaan');
+    throw new Error(`Alleen email adressen van de volgende domeinen zijn toegestaan: ${getAllowedEmailDomains().join(', ')}`);
   }
 
   const mockUser: MockUser = {

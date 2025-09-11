@@ -8,11 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Mail, Lock, AlertTriangle } from 'lucide-react';
 import { mockSignIn } from '@/components/mock-auth';
 import { useRouter } from 'next/navigation';
+import { getAllowedEmailDomains } from '@/lib/auth-utils';
 
 export default function MockAuthPage() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const allowedDomains = getAllowedEmailDomains();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -55,7 +57,7 @@ export default function MockAuthPage() {
           </CardHeader>
           <CardContent className="pt-0">
             <p className="text-sm text-amber-700">
-              Alleen @fitchannel.com email adressen hebben toegang tot dit platform.
+              Alleen email adressen van de volgende domeinen hebben toegang tot dit platform: {allowedDomains.join(', ')}.
             </p>
           </CardContent>
         </Card>
@@ -83,7 +85,7 @@ export default function MockAuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="jouw@fitchannel.com"
+                  placeholder="jouw@champ.nl"
                   required
                 />
               </div>

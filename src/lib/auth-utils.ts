@@ -3,20 +3,18 @@
  */
 
 /**
- * Validates if an email address belongs to the allowed domain
+ * Validates if an email address belongs to one of the allowed domains
  * @param email - The email address to validate
- * @param allowedDomain - The allowed domain (default: @fitchannel.com)
- * @returns boolean - true if email is from allowed domain
+ * @returns boolean - true if email is from an allowed domain
  */
-export function isValidEmailDomain(email: string, allowedDomain: string = '@fitchannel.com'): boolean {
+export function isValidEmailDomain(email: string): boolean {
   if (!email || typeof email !== 'string') {
     return false;
   }
   
-  // Get allowed domain from environment variable or use default
-  const domain = process.env.ALLOWED_EMAIL_DOMAIN || allowedDomain;
-  
-  return email.toLowerCase().endsWith(domain.toLowerCase());
+  const allowedDomains = getAllowedEmailDomains();
+  const emailLower = email.toLowerCase();
+  return allowedDomains.some(domain => emailLower.endsWith(domain.toLowerCase()));
 }
 
 /**
@@ -31,6 +29,30 @@ export function getEmailDomain(email: string): string {
   
   const parts = email.split('@');
   return parts.length > 1 ? parts[1].toLowerCase() : '';
+}
+
+/**
+ * Gets the list of allowed email domains
+ * @returns string[] - Array of allowed domains
+ */
+export function getAllowedEmailDomains(): string[] {
+  const allowedDomains = [
+    '@fitchannel.com',
+    '@champ.nl',
+    '@brightbrown.nl',
+    '@e-leones.com'
+  ];
+  
+  // Get additional allowed domains from environment variable
+  const envDomains = process.env.ALLOWED_EMAIL_DOMAINS;
+  if (envDomains) {
+    const additionalDomains = envDomains.split(',').map(domain => 
+      domain.trim().startsWith('@') ? domain.trim() : `@${domain.trim()}`
+    );
+    allowedDomains.push(...additionalDomains);
+  }
+  
+  return allowedDomains;
 }
 
 /**
@@ -63,10 +85,11 @@ export function isCustomer(userRole: string): boolean {
 /**
  * Gets a user-friendly error message for invalid email domain
  * @param email - The invalid email address
- * @param allowedDomain - The allowed domain
  * @returns string - User-friendly error message
  */
-export function getEmailDomainError(email: string, allowedDomain: string = '@fitchannel.com'): string {
+export function getEmailDomainError(email: string): string {
   const domain = getEmailDomain(email);
-  return `Alleen ${allowedDomain} email adressen zijn toegestaan. Uw email (${domain}) is niet toegestaan.`;
+  const allowedDomains = getAllowedEmailDomains();
+  const domainsList = allowedDomains.join(', ');
+  return `Alleen email adressen van de volgende domeinen zijn toegestaan: ${domainsList}. Uw email (${domain}) is niet toegestaan.`;
 }

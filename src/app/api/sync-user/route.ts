@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { getAllowedEmailDomains } from '@/lib/auth-utils';
 
 function determineUserType(email: string, role: string): string {
   if (role === 'ADMIN') return 'ADMIN';
-  if (email.includes('@fitchannel.com')) return 'EMPLOYEE';
+  
+  const allowedDomains = getAllowedEmailDomains();
+  const isInternalDomain = allowedDomains.some(domain => 
+    email.toLowerCase().endsWith(domain.toLowerCase())
+  );
+  
+  if (isInternalDomain) return 'EMPLOYEE';
   return 'CUSTOMER';
 }
 

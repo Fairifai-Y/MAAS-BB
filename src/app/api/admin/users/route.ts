@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { isValidEmailDomain, getEmailDomainError } from '@/lib/auth-utils';
 
 export async function GET() {
   try {
@@ -75,10 +76,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email domain - only allow @fitchannel.com
-    if (!email.endsWith('@fitchannel.com')) {
+    // Validate email domain
+    if (!isValidEmailDomain(email)) {
       return NextResponse.json(
-        { error: 'Only @fitchannel.com email addresses are allowed' },
+        { error: getEmailDomainError(email) },
         { status: 400 }
       );
     }

@@ -957,7 +957,7 @@ export default function CustomersPage() {
                    type="email"
                    value={editEmployeeForm.email}
                    onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, email: e.target.value })}
-                   placeholder="email@fitchannel.com"
+                   placeholder="email@champ.nl"
                  />
                </div>
                

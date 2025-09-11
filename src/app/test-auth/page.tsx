@@ -14,7 +14,7 @@ import {
   LogOut,
   Settings
 } from 'lucide-react';
-import { isValidEmailDomain } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
 import Link from 'next/link';
 
 export default function TestAuthPage() {
@@ -139,7 +139,7 @@ export default function TestAuthPage() {
                     <div>
                       <p className="text-sm font-medium text-red-800">Email niet toegestaan</p>
                       <p className="text-sm text-red-700">
-                        Alleen @fitchannel.com email adressen zijn toegestaan.
+                        Alleen email adressen van de volgende domeinen zijn toegestaan: {getAllowedEmailDomains().join(', ')}.
                       </p>
                     </div>
                   </div>
