@@ -10,7 +10,9 @@ export async function POST(request: NextRequest) {
     console.log('📦 Request body:', body);
     
     // Return a simple success response for any auth endpoint
-    return new Response('{}', { 
+    return new Response(JSON.stringify({ 
+      success: true
+    }), { 
       status: 200,
       headers: {
         'Content-Type': 'application/json',
