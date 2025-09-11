@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📧 Email verification endpoint called at /auth/verify-email-address');
+    console.log('📧 Email verification endpoint called');
     
-    // This endpoint exists to handle Clerk's email verification requests
-    // Clerk handles the actual verification logic, we just need to respond appropriately
+    // Get the request body
+    const body = await request.json().catch(() => ({}));
+    console.log('📧 Request body:', body);
+    
+    // Clerk expects a simple success response for email verification
     return NextResponse.json({ 
-      message: 'Email verification endpoint reached',
-      success: true 
+      success: true,
+      verified: true
     });
   } catch (error) {
     console.error('❌ Email verification error:', error);

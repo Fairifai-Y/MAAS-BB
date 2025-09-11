@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
     // Handle the webhook
     const eventType = evt.type;
     console.log(`🔔 Clerk webhook received: ${eventType}`);
+    console.log(`📊 Event data:`, JSON.stringify(evt.data, null, 2));
 
     if (eventType === 'user.created') {
       const { id, email_addresses, first_name, last_name } = evt.data;
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
           // Don't throw error to prevent webhook retries
         }
       }
-    } else if (eventType === 'email.created' || eventType === 'email.updated') {
+    } else if (eventType === 'email.created' || eventType === 'email.updated' || eventType === 'email.verified') {
       // Handle email verification events
       console.log(`📧 Email event received: ${eventType}`);
       const { email_address, verification } = evt.data;
@@ -133,6 +134,12 @@ export async function POST(request: NextRequest) {
       if (email_address && verification) {
         console.log(`📧 Email verification status for ${email_address}: ${verification.status}`);
       }
+    } else if (eventType === 'session.created' || eventType === 'session.ended') {
+      // Handle session events
+      console.log(`🔐 Session event received: ${eventType}`);
+    } else {
+      // Log any other events for debugging
+      console.log(`🔔 Unhandled Clerk event: ${eventType}`);
     }
 
     return NextResponse.json({ message: 'Webhook processed successfully' });
