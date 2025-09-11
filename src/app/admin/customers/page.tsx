@@ -109,6 +109,11 @@ export default function CustomersPage() {
   const [isDeleteEmployeeDialogOpen, setIsDeleteEmployeeDialogOpen] = useState(false);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
   
+  // Cancel customer dialog
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [cancellingCustomer, setCancellingCustomer] = useState<Customer | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  
   // New item dialogs
   const [isNewCustomerDialogOpen, setIsNewCustomerDialogOpen] = useState(false);
   const [isNewEmployeeDialogOpen, setIsNewEmployeeDialogOpen] = useState(false);
@@ -408,6 +413,53 @@ export default function CustomersPage() {
     }
   };
 
+  // Cancel customer functions
+  const openCancelDialog = (customer: Customer) => {
+    setCancellingCustomer(customer);
+    setCancelReason('');
+    setIsCancelDialogOpen(true);
+  };
+
+  const cancelCustomer = async () => {
+    if (!cancellingCustomer) return;
+
+    try {
+      console.log('🚫 Cancelling customer:', cancellingCustomer.company);
+      
+      const response = await fetch(`/api/admin/customers/${cancellingCustomer.id}/cancel`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: cancelReason })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Customer cancelled successfully:', result);
+        setCancellingCustomer(null);
+        setIsCancelDialogOpen(false);
+        setCancelReason('');
+        fetchData(); // Refresh data
+        alert('Klant succesvol opgezegd! Data blijft behouden voor rapportage.');
+      } else {
+        let errorMessage = 'Onbekende fout';
+        
+        try {
+          const errorData = await response.json();
+          console.error('❌ Failed to cancel customer:', errorData);
+          errorMessage = errorData.error || errorData.details || 'Onbekende fout';
+        } catch (parseError) {
+          console.error('❌ Failed to parse error response:', parseError);
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        
+        alert(`Fout bij opzeggen: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('❌ Error cancelling customer:', error);
+      alert('Netwerkfout bij opzeggen van klant');
+    }
+  };
+
   // New Customer functions
   const openNewCustomerDialog = () => {
     setNewCustomerForm({
@@ -630,8 +682,18 @@ export default function CustomersPage() {
                             <Button
                               size="sm"
                               variant="outline"
+                              onClick={() => openCancelDialog(customer)}
+                              className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                              title="Klant opzeggen"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => openDeleteDialog(customer)}
                               className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="Klant permanent verwijderen"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
@@ -1366,6 +1428,56 @@ export default function CustomersPage() {
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Cancel Customer Dialog */}
+        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center text-orange-600">
+                <X className="w-5 h-5 mr-2" />
+                Klant Opzeggen
+              </DialogTitle>
+            </DialogHeader>
+            {cancellingCustomer && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-gray-600 mb-4">
+                    Weet je zeker dat je <strong>{cancellingCustomer.company}</strong> wilt opzeggen?
+                  </p>
+                  <p className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">
+                    ✅ Data blijft behouden voor rapportage. Klant verdwijnt uit dropdown.
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="cancelReason">Reden voor opzegging (optioneel)</Label>
+                  <Input
+                    id="cancelReason"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder="Bijv. Contract verlopen, tevreden met resultaat..."
+                  />
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    onClick={cancelCustomer} 
+                    className="flex-1 bg-orange-600 hover:bg-orange-700"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Opzeggen
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsCancelDialogOpen(false)}
+                    className="flex-1"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Annuleren
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </AdminLayout>

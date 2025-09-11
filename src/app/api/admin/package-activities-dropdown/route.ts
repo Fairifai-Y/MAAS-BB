@@ -19,6 +19,18 @@ export async function GET() {
           }
         }
       },
+      where: {
+        // Alleen actieve klanten
+        package: {
+          customer_packages: {
+            some: {
+              customers: {
+                isActive: true
+              }
+            }
+          }
+        }
+      },
       orderBy: [
         { package: { name: 'asc' } },
         { activityTemplate: { name: 'asc' } }
