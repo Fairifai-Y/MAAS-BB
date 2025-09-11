@@ -8,13 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Mail, Lock, AlertTriangle } from 'lucide-react';
 import { mockSignIn } from '@/components/mock-auth';
 import { useRouter } from 'next/navigation';
-import { getAllowedEmailDomains } from '@/lib/auth-utils';
+import { getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 export default function MockAuthPage() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const allowedDomains = getAllowedEmailDomains();
+  const allowedDomains = getAllowedEmailDomainsClient();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 

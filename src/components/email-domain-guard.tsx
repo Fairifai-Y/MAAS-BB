@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 interface EmailDomainGuardProps {
   children: React.ReactNode;
@@ -61,7 +61,7 @@ export default function EmailDomainGuard({
   // Check email domain
   const email = user.primaryEmailAddress?.emailAddress;
   if (email && !isValidEmailDomain(email)) {
-    const allowedDomains = getAllowedEmailDomains();
+    const allowedDomains = getAllowedEmailDomainsClient();
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">

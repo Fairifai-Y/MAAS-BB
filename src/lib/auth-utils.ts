@@ -32,7 +32,7 @@ export function getEmailDomain(email: string): string {
 }
 
 /**
- * Gets the list of allowed email domains
+ * Gets the list of allowed email domains (server-side)
  * @returns string[] - Array of allowed domains
  */
 export function getAllowedEmailDomains(): string[] {
@@ -53,6 +53,21 @@ export function getAllowedEmailDomains(): string[] {
   }
   
   return allowedDomains;
+}
+
+/**
+ * Gets the list of allowed email domains (client-side)
+ * @returns string[] - Array of allowed domains
+ */
+export function getAllowedEmailDomainsClient(): string[] {
+  // For client-side, we only return the hardcoded domains
+  // Environment variables are not available on the client
+  return [
+    '@fitchannel.com',
+    '@champ.nl',
+    '@brightbrown.nl',
+    '@e-leones.com'
+  ];
 }
 
 /**

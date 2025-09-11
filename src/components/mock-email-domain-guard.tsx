@@ -3,7 +3,7 @@
 import { useMockAuth } from '@/components/mock-auth';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 interface MockEmailDomainGuardProps {
   children: React.ReactNode;
@@ -65,7 +65,7 @@ export default function MockEmailDomainGuard({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Toegang Geweigerd</h2>
-          <p className="text-gray-600 mb-2">Alleen email adressen van de volgende domeinen zijn toegestaan: {getAllowedEmailDomains().join(', ')}</p>
+          <p className="text-gray-600 mb-2">Alleen email adressen van de volgende domeinen zijn toegestaan: {getAllowedEmailDomainsClient().join(', ')}</p>
           <p className="text-sm text-gray-500 mb-6">Uw email: {email}</p>
           <button 
             onClick={() => router.push('/auth-mock')}

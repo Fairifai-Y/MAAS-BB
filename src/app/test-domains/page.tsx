@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { isValidEmailDomain, getAllowedEmailDomains, getEmailDomainError } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomainsClient, getEmailDomainError } from '@/lib/auth-utils';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function TestDomainsPage() {
   const [testEmail, setTestEmail] = useState('');
   const [testResults, setTestResults] = useState<Array<{email: string, valid: boolean, error?: string}>>([]);
 
-  const allowedDomains = getAllowedEmailDomains();
+  const allowedDomains = getAllowedEmailDomainsClient();
 
   const testEmailValidation = () => {
     if (!testEmail.trim()) return;

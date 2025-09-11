@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mail, Lock } from 'lucide-react';
-import { getAllowedEmailDomains } from '@/lib/auth-utils';
+import { getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
-  const allowedDomains = getAllowedEmailDomains();
+  const allowedDomains = getAllowedEmailDomainsClient();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">

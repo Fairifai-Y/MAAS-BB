@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
-import { isValidEmailDomain, getAllowedEmailDomains } from '@/lib/auth-utils';
+import { isValidEmailDomain, getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 export default function ClerkStatusPage() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -24,7 +24,7 @@ export default function ClerkStatusPage() {
 
   const primaryEmail = user?.emailAddresses.find(ea => ea.id === user.primaryEmailAddressId)?.emailAddress;
   const isDomainValid = primaryEmail ? isValidEmailDomain(primaryEmail) : false;
-  const allowedDomains = getAllowedEmailDomains();
+  const allowedDomains = getAllowedEmailDomainsClient();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">

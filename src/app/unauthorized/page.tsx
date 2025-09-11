@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Mail } from 'lucide-react';
 import Link from 'next/link';
-import { getAllowedEmailDomains } from '@/lib/auth-utils';
+import { getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 export default function UnauthorizedPage() {
   return (
@@ -17,7 +17,7 @@ export default function UnauthorizedPage() {
         <CardContent className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2 text-gray-600">
             <Mail className="w-5 h-5" />
-            <span>Alleen email adressen van de volgende domeinen zijn toegestaan: {getAllowedEmailDomains().join(', ')}</span>
+            <span>Alleen email adressen van de volgende domeinen zijn toegestaan: {getAllowedEmailDomainsClient().join(', ')}</span>
           </div>
           
           <p className="text-gray-600">
