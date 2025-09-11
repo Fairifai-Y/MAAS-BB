@@ -70,7 +70,7 @@ interface Activity {
 
 export default function EmployeeActionsPage() {
   const [actions, setActions] = useState<Action[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [packageActivities, setPackageActivities] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -80,7 +80,7 @@ export default function EmployeeActionsPage() {
   const [editingAction, setEditingAction] = useState<Action | null>(null);
   const [deletingAction, setDeletingAction] = useState<Action | null>(null);
   const [createForm, setCreateForm] = useState({
-    activityId: '',
+    packageActivityId: '',
     title: '',
     description: '',
     plannedHours: '',
@@ -105,9 +105,9 @@ export default function EmployeeActionsPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [actionsResponse, activitiesResponse] = await Promise.all([
+      const [actionsResponse, packageActivitiesResponse] = await Promise.all([
         fetch('/api/employee/actions'),
-        fetch('/api/employee/activities')
+        fetch('/api/admin/package-activities-dropdown')
       ]);
 
       if (actionsResponse.ok) {
@@ -115,9 +115,9 @@ export default function EmployeeActionsPage() {
         setActions(actionsData);
       }
 
-      if (activitiesResponse.ok) {
-        const activitiesData = await activitiesResponse.json();
-        setActivities(activitiesData);
+      if (packageActivitiesResponse.ok) {
+        const packageActivitiesData = await packageActivitiesResponse.json();
+        setPackageActivities(packageActivitiesData);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -168,7 +168,7 @@ export default function EmployeeActionsPage() {
 
   const openCreateDialog = () => {
     setCreateForm({
-      activityId: '',
+      packageActivityId: '',
       title: '',
       description: '',
       plannedHours: '',
@@ -179,18 +179,19 @@ export default function EmployeeActionsPage() {
     setIsCreateDialogOpen(true);
   };
 
-  const handleActivityChange = (activityId: string) => {
-    setCreateForm({ ...createForm, activityId });
+  const handlePackageActivityChange = (packageActivityId: string) => {
+    setCreateForm({ ...createForm, packageActivityId });
     
-    // Find the selected activity and auto-fill planned hours
-    if (activityId) {
-      const selectedActivity = activities.find(activity => activity.id === activityId);
-      if (selectedActivity) {
+    // Find the selected package activity and auto-fill planned hours
+    if (packageActivityId) {
+      const selectedPackageActivity = packageActivities.find(pa => pa.id === packageActivityId);
+      if (selectedPackageActivity) {
         setCreateForm(prev => ({
           ...prev,
-          activityId,
-          plannedHours: '1',
-          title: selectedActivity.description || ''
+          packageActivityId,
+          plannedHours: String(selectedPackageActivity.estimatedHours || 1),
+          title: selectedPackageActivity.activityName || '',
+          description: selectedPackageActivity.description || ''
         }));
       }
     }
@@ -458,17 +459,17 @@ export default function EmployeeActionsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="activity">Activiteit</Label>
+              <Label htmlFor="packageActivity">Pakket Activiteit</Label>
               <select
-                id="activity"
-                value={createForm.activityId}
-                onChange={(e) => handleActivityChange(e.target.value)}
+                id="packageActivity"
+                value={createForm.packageActivityId}
+                onChange={(e) => handlePackageActivityChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Selecteer activiteit</option>
-                {activities.map((activity) => (
-                  <option key={activity.id} value={activity.id}>
-                    {activity.customer_packages?.customers?.company || 'Onbekende klant'} - {activity.description}
+                <option value="">Selecteer pakket activiteit</option>
+                {packageActivities.map((packageActivity) => (
+                  <option key={packageActivity.id} value={packageActivity.id}>
+                    {packageActivity.displayName}
                   </option>
                 ))}
               </select>

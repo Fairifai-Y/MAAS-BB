@@ -108,12 +108,68 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { activityId, title, description, plannedHours, actualHours, status, dueDate } = body;
+    const { 
+      packageActivityId, 
+      activityId, // Keep for backward compatibility
+      title, 
+      description, 
+      plannedHours, 
+      actualHours, 
+      status, 
+      dueDate 
+    } = body;
+
+    let activityIdToUse = activityId;
+
+    // If packageActivityId is provided, we need to create an Activity first
+    if (packageActivityId) {
+      // Get package activity details
+      const packageActivity = await prisma.packageActivity.findUnique({
+        where: { id: packageActivityId },
+        include: {
+          package: true,
+          activityTemplate: true
+        }
+      });
+
+      if (!packageActivity) {
+        return NextResponse.json(
+          { error: 'Package activity not found' },
+          { status: 404 }
+        );
+      }
+
+      // Find the customer package for this package
+      const customerPackage = await prisma.customer_packages.findFirst({
+        where: { packageId: packageActivity.packageId }
+      });
+
+      if (!customerPackage) {
+        return NextResponse.json(
+          { error: 'No customer package found for this package activity' },
+          { status: 404 }
+        );
+      }
+
+      // Create a new Activity record
+      const newActivity = await prisma.activity.create({
+        data: {
+          customerPackageId: customerPackage.id,
+          employeeId: employee.id,
+          description: title,
+          hours: Number(plannedHours),
+          date: new Date(),
+          status: 'PENDING'
+        }
+      });
+
+      activityIdToUse = newActivity.id;
+    }
 
     // Create new action
     const action = await prisma.action.create({
       data: {
-        activityId,
+        activityId: activityIdToUse,
         ownerId: employee.id,
         title,
         description,

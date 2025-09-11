@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
-      activityId,
+      packageActivityId,
+      activityId, // Keep for backward compatibility
       ownerId,
       title,
       description,
@@ -51,16 +52,63 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!activityId || !ownerId || !title || !plannedHours) {
+    if ((!packageActivityId && !activityId) || !ownerId || !title || !plannedHours) {
       return NextResponse.json(
-        { error: 'Missing required fields: activityId, ownerId, title, plannedHours' },
+        { error: 'Missing required fields: packageActivityId (or activityId), ownerId, title, plannedHours' },
         { status: 400 }
       );
     }
 
+    let activityIdToUse = activityId;
+
+    // If packageActivityId is provided, we need to create an Activity first
+    if (packageActivityId) {
+      // Get package activity details
+      const packageActivity = await prisma.packageActivity.findUnique({
+        where: { id: packageActivityId },
+        include: {
+          package: true,
+          activityTemplate: true
+        }
+      });
+
+      if (!packageActivity) {
+        return NextResponse.json(
+          { error: 'Package activity not found' },
+          { status: 404 }
+        );
+      }
+
+      // Find the customer package for this package
+      const customerPackage = await prisma.customer_packages.findFirst({
+        where: { packageId: packageActivity.packageId }
+      });
+
+      if (!customerPackage) {
+        return NextResponse.json(
+          { error: 'No customer package found for this package activity' },
+          { status: 404 }
+        );
+      }
+
+      // Create a new Activity record
+      const newActivity = await prisma.activity.create({
+        data: {
+          customerPackageId: customerPackage.id,
+          employeeId: ownerId, // Use the owner as the employee
+          description: title,
+          hours: Number(plannedHours),
+          date: new Date(),
+          status: 'PENDING'
+        }
+      });
+
+      activityIdToUse = newActivity.id;
+    }
+
     // Check if activity exists
     const activity = await prisma.activity.findUnique({
-      where: { id: activityId }
+      where: { id: activityIdToUse }
     });
 
     if (!activity) {
@@ -84,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     const action = await prisma.action.create({
       data: {
-        activityId,
+        activityId: activityIdToUse,
         ownerId,
         title,
         description: description || null,
