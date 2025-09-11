@@ -10,9 +10,7 @@ export async function POST(request: NextRequest) {
     console.log('📦 Request body:', body);
     
     // Return a simple success response for any auth endpoint
-    return new Response(JSON.stringify({ 
-      success: true
-    }), { 
+    return new Response('{}', { 
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -20,10 +18,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('❌ Auth catch-all error:', error);
-    return NextResponse.json(
-      { error: 'Auth endpoint failed' },
-      { status: 500 }
-    );
+    return new Response('{}', { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
@@ -31,8 +31,10 @@ export async function GET(request: NextRequest) {
   const { pathname } = new URL(request.url);
   console.log(`🔔 Auth GET catch-all endpoint called: ${pathname}`);
   
-  return NextResponse.json({ 
-    message: 'Auth GET endpoint reached',
-    path: pathname
+  return new Response('{}', { 
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 }

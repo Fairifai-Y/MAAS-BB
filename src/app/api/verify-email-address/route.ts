@@ -9,10 +9,8 @@ export async function POST(request: NextRequest) {
     console.log('📧 Request body:', body);
     
     // Clerk expects a specific response format for email verification
-    // Return a simple 200 OK response with success JSON body
-    return new Response(JSON.stringify({ 
-      success: true
-    }), { 
+    // Return a 200 OK response with empty JSON body as Clerk expects
+    return new Response('{}', { 
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -20,10 +18,20 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('❌ Email verification error:', error);
-    return new Response(null, { status: 500 });
+    return new Response('{}', { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
 export async function GET() {
-  return new Response(null, { status: 405 });
+  return new Response('{}', { 
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 }

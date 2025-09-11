@@ -18,10 +18,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('❌ Clerk catch-all error:', error);
-    return NextResponse.json(
-      { error: 'Clerk endpoint failed' },
-      { status: 500 }
-    );
+    return new Response('{}', { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
@@ -29,8 +31,10 @@ export async function GET(request: NextRequest) {
   const { pathname } = new URL(request.url);
   console.log(`🔔 Clerk GET catch-all endpoint called: ${pathname}`);
   
-  return NextResponse.json({ 
-    message: 'Clerk GET endpoint reached',
-    path: pathname
+  return new Response('{}', { 
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 }
