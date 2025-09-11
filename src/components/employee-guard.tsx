@@ -39,10 +39,11 @@ export default function EmployeeGuard({
 
           if (response.ok) {
             const data = await response.json();
-            setUserRole(data.user.role);
+            const userType = data.user.userType || data.user.role;
+            setUserRole(userType);
             
             // If user is not employee or admin, redirect
-            if (data.user.role !== 'EMPLOYEE' && data.user.role !== 'ADMIN') {
+            if (userType !== 'EMPLOYEE' && userType !== 'ADMIN') {
               console.log('User is not employee or admin, redirecting to unauthorized');
               router.push('/unauthorized');
               return;

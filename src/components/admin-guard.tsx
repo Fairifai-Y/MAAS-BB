@@ -39,10 +39,11 @@ export default function AdminGuard({
 
           if (response.ok) {
             const data = await response.json();
-            setUserRole(data.user.role);
+            const userType = data.user.userType || data.user.role;
+            setUserRole(userType);
             
             // If user is not admin, redirect
-            if (data.user.role !== 'ADMIN') {
+            if (userType !== 'ADMIN') {
               console.log('User is not admin, redirecting to dashboard');
               router.push('/dashboard');
               return;
