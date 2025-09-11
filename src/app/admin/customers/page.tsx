@@ -209,11 +209,8 @@ export default function CustomersPage() {
     if (!editingCustomer) return;
 
     try {
-      // Validate email domain
-      if (!isValidEmailDomain(editForm.email)) {
-        alert(getEmailDomainError(editForm.email));
-        return;
-      }
+      // For customers, we allow any email domain (no restriction)
+      // Only employees need to use specific domains
 
       const requestBody = {
         ...editForm,
@@ -428,11 +425,8 @@ export default function CustomersPage() {
 
   const createNewCustomer = async () => {
     try {
-      // Validate email domain
-      if (!isValidEmailDomain(newCustomerForm.email)) {
-        alert(getEmailDomainError(newCustomerForm.email));
-        return;
-      }
+      // For customers, we allow any email domain (no restriction)
+      // Only employees need to use specific domains
 
       const requestBody = {
         ...newCustomerForm,
@@ -858,12 +852,13 @@ export default function CustomersPage() {
                </div>
                <div>
                  <Label htmlFor="email">E-mail</Label>
-                 <Input
-                   id="email"
-                   type="email"
-                   value={editForm.email}
-                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                 />
+                <Input
+                  id="email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  placeholder="email@example.com"
+                />
                </div>
                <div>
                  <Label htmlFor="phone">Telefoon</Label>
@@ -957,7 +952,7 @@ export default function CustomersPage() {
                    type="email"
                    value={editEmployeeForm.email}
                    onChange={(e) => setEditEmployeeForm({ ...editEmployeeForm, email: e.target.value })}
-                   placeholder="email@champ.nl"
+                   placeholder="email@example.com"
                  />
                </div>
                
@@ -1178,6 +1173,7 @@ export default function CustomersPage() {
                   type="email"
                   value={newCustomerForm.email}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
+                  placeholder="email@example.com"
                 />
               </div>
               <div>
@@ -1270,7 +1266,7 @@ export default function CustomersPage() {
                   type="email"
                   value={newEmployeeForm.email}
                   onChange={(e) => setNewEmployeeForm({ ...newEmployeeForm, email: e.target.value })}
-                  placeholder="email@fitchannel.com"
+                  placeholder="email@example.com"
                 />
               </div>
               

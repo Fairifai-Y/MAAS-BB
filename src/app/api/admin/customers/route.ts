@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { isValidEmailDomain, getEmailDomainError } from '@/lib/auth-utils';
 
 export async function GET() {
   try {
@@ -40,13 +39,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email domain
-    if (!isValidEmailDomain(email)) {
-      return NextResponse.json(
-        { error: getEmailDomainError(email) },
-        { status: 400 }
-      );
-    }
+    // For customers, we allow any email domain (no restriction)
+    // Only employees need to use specific domains
 
     // Check if user with this email already exists
     const existingUser = await prisma.user.findUnique({
