@@ -114,11 +114,11 @@ export default function CustomerDashboard() {
       }
 
       const totalHoursUsed = actions.reduce((sum: number, action: any) => 
-        sum + (action.actualHours || action.plannedHours || 0), 0
+        sum + (Number(action.actualHours) || Number(action.plannedHours) || 0), 0
       );
 
       const totalPlannedHours = actions.reduce((sum: number, action: any) => 
-        sum + (action.plannedHours || 0), 0
+        sum + (Number(action.plannedHours) || 0), 0
       );
 
       const completedActions = actions.filter((a: any) => 
@@ -133,10 +133,10 @@ export default function CustomerDashboard() {
         packages: [], // No packages for employees
         activities,
         deliveredProducts: actions, // Use actions as "delivered products"
-        totalHoursUsed,
-        totalHoursRemaining: totalPlannedHours - totalHoursUsed,
-        completedActivities: completedActions,
-        pendingActivities: pendingActions
+        totalHoursUsed: Number(totalHoursUsed) || 0,
+        totalHoursRemaining: Number(totalPlannedHours - totalHoursUsed) || 0,
+        completedActivities: Number(completedActions) || 0,
+        pendingActivities: Number(pendingActions) || 0
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
@@ -214,7 +214,7 @@ export default function CustomerDashboard() {
   // Calculate package usage percentage
   const getPackageUsagePercentage = (pkg: CustomerPackage) => {
     if (pkg.packages.maxHours === 0) return 0;
-    return Math.min((dashboardData.totalHoursUsed / pkg.packages.maxHours) * 100, 100);
+    return Math.min((Number(dashboardData.totalHoursUsed || 0) / pkg.packages.maxHours) * 100, 100);
   };
 
   return (
@@ -253,9 +253,9 @@ export default function CustomerDashboard() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(dashboardData.totalHoursUsed || 0).toFixed(1)}</div>
+            <div className="text-2xl font-bold">{Number(dashboardData.totalHoursUsed || 0).toFixed(1)}</div>
             <p className="text-xs text-muted-foreground">
-              {(dashboardData.totalHoursRemaining || 0).toFixed(1)} uren gepland
+              {Number(dashboardData.totalHoursRemaining || 0).toFixed(1)} uren gepland
             </p>
           </CardContent>
         </Card>
@@ -307,7 +307,7 @@ export default function CustomerDashboard() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">{action.actualHours || action.plannedHours} uren</p>
+                    <p className="font-medium">{Number(action.actualHours || action.plannedHours || 0).toFixed(1)} uren</p>
                     <Badge className={getActivityStatusColor(action.status)}>
                       {action.status === 'COMPLETED' ? 'Afgerond' : 
                        action.status === 'IN_PROGRESS' ? 'Bezig' : 'Gepland'}
