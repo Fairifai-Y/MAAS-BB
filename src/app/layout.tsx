@@ -34,6 +34,15 @@ export default function RootLayout({
       signUpUrl="/auth"
       signInFallbackRedirectUrl="/post-auth"
       signUpFallbackRedirectUrl="/post-auth"
+      appearance={{
+        baseTheme: undefined,
+        variables: {
+          colorPrimary: "#f59e0b",
+        },
+      }}
+      localization={{
+        locale: "nl",
+      }}
     >
       <html lang="nl">
         <head>

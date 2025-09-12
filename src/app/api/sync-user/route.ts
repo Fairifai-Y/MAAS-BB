@@ -26,11 +26,17 @@ export async function POST() {
       );
     }
 
-    // Get user info from Clerk
+    // Get user info from Clerk with better error handling
     const clerkUser = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
       headers: {
         'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Fitchannel-Platform/1.0',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       },
+      // Add timeout
+      signal: AbortSignal.timeout(10000) // 10 second timeout
     });
 
     if (!clerkUser.ok) {

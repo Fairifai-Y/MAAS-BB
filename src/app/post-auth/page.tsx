@@ -25,12 +25,21 @@ export default function PostAuthRedirect() {
       try {
         console.log(`🔄 Syncing user (attempt ${retryCount + 1})...`);
         
+        // Add timeout and better error handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const response = await fetch('/api/sync-user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
           },
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
@@ -68,6 +77,11 @@ export default function PostAuthRedirect() {
       } catch (error) {
         console.error('❌ Error syncing user:', error);
         
+        // Check if it's an abort error (timeout)
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.log('⏰ Request timed out');
+        }
+        
         // Retry up to 3 times with exponential backoff
         if (retryCount < 3) {
           const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
@@ -93,7 +107,16 @@ export default function PostAuthRedirect() {
       syncUser();
     }, 500); // Increased delay to give webhook more time
 
-    return () => clearTimeout(timeoutId);
+    // Fallback: if sync fails completely, redirect after 15 seconds
+    const fallbackTimeoutId = setTimeout(() => {
+      console.log('⚠️ Fallback timeout reached, redirecting to dashboard');
+      router.replace('/dashboard');
+    }, 15000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(fallbackTimeoutId);
+    };
   }, [isLoaded, isSignedIn, user?.id, router]);
 
   if (isSyncing) {
