@@ -54,6 +54,7 @@ export default function AuthPage() {
             {/* Clerk Components */}
             {isSignIn ? (
               <SignIn 
+                afterSignInUrl="/post-auth"
                 appearance={{
                   elements: {
                     formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
@@ -68,6 +69,7 @@ export default function AuthPage() {
               />
             ) : (
               <SignUp 
+                afterSignUpUrl="/post-auth"
                 appearance={{
                   elements: {
                     formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',

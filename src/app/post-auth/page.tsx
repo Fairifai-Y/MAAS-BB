@@ -10,12 +10,18 @@ export default function PostAuthRedirect() {
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded) {
+      console.log('⏳ Clerk is still loading...');
+      return;
+    }
 
     if (!isSignedIn) {
+      console.log('❌ User is not signed in, redirecting to auth');
       router.replace('/auth');
       return;
     }
+
+    console.log('✅ User is signed in, starting sync process');
 
     // Sync user with database
     const syncUser = async (retryCount = 0) => {
@@ -70,9 +76,25 @@ export default function PostAuthRedirect() {
             return;
           }
           
-          // After 3 retries, fallback to dashboard
-          console.log('⚠️ Max retries reached, redirecting to dashboard');
-          router.replace('/dashboard');
+          // After 3 retries, try to get user info from Clerk directly
+          console.log('⚠️ Max retries reached, trying direct redirect based on user info');
+          
+          // Try to determine user type from Clerk user data
+          if (user?.emailAddresses?.[0]?.emailAddress) {
+            const email = user.emailAddresses[0].emailAddress;
+            const isInternal = email.includes('@fitchannel.com') || email.includes('@sdeal.com');
+            
+            if (isInternal) {
+              console.log('🔄 Redirecting to admin dashboard (internal user)');
+              router.replace('/admin');
+            } else {
+              console.log('🔄 Redirecting to customer dashboard');
+              router.replace('/dashboard');
+            }
+          } else {
+            console.log('🔄 No user email found, redirecting to dashboard');
+            router.replace('/dashboard');
+          }
         }
       } catch (error) {
         console.error('❌ Error syncing user:', error);
@@ -92,9 +114,25 @@ export default function PostAuthRedirect() {
           return;
         }
         
-        // After 3 retries, fallback to dashboard
-        console.log('⚠️ Max retries reached, redirecting to dashboard');
-        router.replace('/dashboard');
+        // After 3 retries, try to get user info from Clerk directly
+        console.log('⚠️ Max retries reached, trying direct redirect based on user info');
+        
+        // Try to determine user type from Clerk user data
+        if (user?.emailAddresses?.[0]?.emailAddress) {
+          const email = user.emailAddresses[0].emailAddress;
+          const isInternal = email.includes('@fitchannel.com') || email.includes('@sdeal.com');
+          
+          if (isInternal) {
+            console.log('🔄 Redirecting to admin dashboard (internal user)');
+            router.replace('/admin');
+          } else {
+            console.log('🔄 Redirecting to customer dashboard');
+            router.replace('/dashboard');
+          }
+        } else {
+          console.log('🔄 No user email found, redirecting to dashboard');
+          router.replace('/dashboard');
+        }
       } finally {
         if (retryCount === 0) {
           setIsSyncing(false);
