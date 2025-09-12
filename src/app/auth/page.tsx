@@ -1,7 +1,8 @@
 'use client';
 
 import { SignIn, SignUp } from '@clerk/nextjs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mail, Lock } from 'lucide-react';
@@ -9,12 +10,53 @@ import { getAllowedEmailDomainsClient } from '@/lib/auth-utils';
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
+  const [clerkError, setClerkError] = useState<string | null>(null);
+  const router = useRouter();
   const allowedDomains = getAllowedEmailDomainsClient();
+
+  useEffect(() => {
+    // Listen for Clerk errors
+    const handleError = (event: ErrorEvent) => {
+      if (event.error?.message?.includes('unexpected response') || 
+          event.error?.message?.includes('Clerk')) {
+        console.error('🚨 Clerk error detected:', event.error);
+        setClerkError('Er is een probleem opgetreden met de authenticatie. Probeer het opnieuw.');
+        
+        // Auto-redirect after 3 seconds
+        setTimeout(() => {
+          router.push('/post-auth');
+        }, 3000);
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header removed per request */}
+
+        {/* Clerk Error Notice */}
+        {clerkError && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-red-800 flex items-center">
+                <Lock className="w-4 h-4 mr-2" />
+                Authenticatie Fout
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm text-red-700 mb-3">
+                {clerkError}
+              </p>
+              <p className="text-xs text-red-600">
+                Je wordt automatisch doorgestuurd naar de login pagina...
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Domain Restriction Notice */}
         <Card className="mb-6 border-amber-200 bg-amber-50">

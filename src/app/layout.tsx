@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
+import ClerkErrorBoundary from '@/components/clerk-error-boundary';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -34,6 +35,8 @@ export default function RootLayout({
       signUpUrl="/auth"
       signInFallbackRedirectUrl="/post-auth"
       signUpFallbackRedirectUrl="/post-auth"
+      afterSignInUrl="/post-auth"
+      afterSignUpUrl="/post-auth"
       appearance={{
         baseTheme: undefined,
         variables: {
@@ -51,7 +54,9 @@ export default function RootLayout({
           <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
         </head>
         <body className={inter.className}>
-          {children}
+          <ClerkErrorBoundary>
+            {children}
+          </ClerkErrorBoundary>
         </body>
       </html>
     </ClerkProvider>
