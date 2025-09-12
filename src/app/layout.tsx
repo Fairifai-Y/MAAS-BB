@@ -35,8 +35,6 @@ export default function RootLayout({
       signUpUrl="/auth"
       signInFallbackRedirectUrl="/post-auth"
       signUpFallbackRedirectUrl="/post-auth"
-      afterSignInUrl="/post-auth"
-      afterSignUpUrl="/post-auth"
       appearance={{
         baseTheme: undefined,
         variables: {
