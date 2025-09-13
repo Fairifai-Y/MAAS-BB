@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   Package, 
   Clock, 
@@ -17,9 +18,12 @@ import {
   Image,
   Globe,
   Mail,
-  Share2
+  Share2,
+  Settings
 } from 'lucide-react';
 import CustomerLayout from '@/components/customer-layout';
+import { useUser } from '@clerk/nextjs';
+import { isAdmin } from '@/lib/auth-utils';
 
 interface CustomerPackage {
   id: string;
@@ -69,6 +73,7 @@ interface DashboardData {
 }
 
 export default function CustomerDashboard() {
+  const { user, isLoaded } = useUser();
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     packages: [],
     activities: [],
@@ -217,8 +222,26 @@ export default function CustomerDashboard() {
     return Math.min((Number(dashboardData.totalHoursUsed || 0) / pkg.packages.maxHours) * 100, 100);
   };
 
+  // Check if user is admin
+  const isUserAdmin = () => {
+    if (!isLoaded || !user) return false;
+    return isAdmin(user.publicMetadata?.role as string || '');
+  };
+
   return (
     <CustomerLayout title="Mijn Fitchannel Dashboard" description="Welkom terug! Hier vind je een overzicht van jouw acties en werkzaamheden.">
+      
+      {/* Admin Button - Only visible for admin users */}
+      {isLoaded && isUserAdmin() && (
+        <div className="mb-6 flex justify-end">
+          <a href="/admin">
+            <Button className="flex items-center">
+              <Settings className="w-4 h-4 mr-2" />
+              Admin Panel
+            </Button>
+          </a>
+        </div>
+      )}
 
       {/* Employee Overview Section */}
       <div className="mb-8">
