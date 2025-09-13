@@ -411,7 +411,7 @@ export default function AdminDashboard() {
               <>
                 <div className="text-2xl font-bold">{stats.declarablePercentage || 0}%</div>
                 <p className="text-xs text-muted-foreground">
-                  Beschikbare / Verkochte uren
+                  Verkochte / Beschikbare uren
                 </p>
               </>
             )}

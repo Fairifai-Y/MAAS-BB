@@ -90,8 +90,8 @@ export async function GET() {
       return sum + hours;
     }, 0);
     
-    // Bereken declarabel percentage (beschikbare uren / verkochte uren)
-    const declarablePercentage = soldHoursPerMonth > 0 ? (availableHoursPerMonth / soldHoursPerMonth) * 100 : 0;
+    // Bereken declarabel percentage (verkochte uren / beschikbare uren)
+    const declarablePercentage = availableHoursPerMonth > 0 ? (soldHoursPerMonth / availableHoursPerMonth) * 100 : 0;
     
     // Bereken efficiëntie percentage (verkochte uren / uitgevoerde uren)
     const efficiencyPercentage = executedHoursPerMonth > 0 ? (soldHoursPerMonth / executedHoursPerMonth) * 100 : 0;
