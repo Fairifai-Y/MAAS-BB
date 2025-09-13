@@ -11,7 +11,9 @@ import {
   Home,
   TrendingUp,
   Users,
-  CheckSquare
+  CheckSquare,
+  LayoutDashboard,
+  Settings
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
 import AdminGuard from '@/components/admin-guard';
@@ -76,13 +78,28 @@ export default function AdminLayout({ children, title, description }: AdminLayou
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <Logo size="md" />
             </div>
-            <div className="flex space-x-4">
-              <a href="/" className="text-gray-900 hover:text-gray-600 font-medium">
-                Home
+            <div className="flex items-center space-x-3">
+              <a href="/">
+                <Button variant="outline" size="sm" className="flex items-center">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </a>
+              <a href="/dashboard">
+                <Button variant="outline" size="sm" className="flex items-center">
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
+              </a>
+              <a href="/admin">
+                <Button size="sm" className="flex items-center">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin
+                </Button>
               </a>
             </div>
           </div>

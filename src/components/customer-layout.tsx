@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { 
   BarChart3,
   CheckSquare,
-  Home
+  Home,
+  LayoutDashboard
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
 import EmployeeGuard from '@/components/employee-guard';
@@ -42,13 +43,22 @@ export default function CustomerLayout({ children, title, description }: Custome
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <Logo size="md" />
             </div>
-            <div className="flex space-x-4">
-              <a href="/" className="text-gray-900 hover:text-gray-600 font-medium">
-                Home
+            <div className="flex items-center space-x-3">
+              <a href="/">
+                <Button variant="outline" size="sm" className="flex items-center">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </a>
+              <a href="/dashboard">
+                <Button size="sm" className="flex items-center">
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
               </a>
             </div>
           </div>
