@@ -33,6 +33,7 @@ interface ActivityTemplate {
   description: string;
   category: string;
   estimatedHours: number;
+  sellingPrice: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -64,7 +65,8 @@ export default function ActivitiesPage() {
     name: '',
     description: '',
     category: 'WEBSITE',
-    estimatedHours: 0
+    estimatedHours: 0,
+    sellingPrice: 75
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -125,7 +127,7 @@ export default function ActivitiesPage() {
       });
 
       if (response.ok) {
-        setNewTemplate({ name: '', description: '', category: 'WEBSITE', estimatedHours: 0 });
+        setNewTemplate({ name: '', description: '', category: 'WEBSITE', estimatedHours: 0, sellingPrice: 75 });
         setIsCreateDialogOpen(false);
         fetchActivityTemplates();
       }
@@ -311,6 +313,17 @@ export default function ActivitiesPage() {
                   onChange={(e) => setNewTemplate({ ...newTemplate, estimatedHours: parseFloat(e.target.value) || 0 })}
                 />
               </div>
+              <div>
+                <Label htmlFor="sellingPrice">Verkoopprijs per Uur (€)</Label>
+                <Input
+                  id="sellingPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newTemplate.sellingPrice || ''}
+                  onChange={(e) => setNewTemplate({ ...newTemplate, sellingPrice: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
               <Button onClick={createTemplate} className="w-full">
                 Activiteit Aanmaken
               </Button>
@@ -344,6 +357,7 @@ export default function ActivitiesPage() {
                     <th className="text-left p-2">Categorie</th>
                     <th className="text-left p-2">Beschrijving</th>
                     <th className="text-left p-2">Uren</th>
+                    <th className="text-left p-2">Prijs/uur</th>
                     <th className="text-left p-2">Status</th>
                     <th className="text-left p-2">Acties</th>
                   </tr>
@@ -366,6 +380,11 @@ export default function ActivitiesPage() {
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4 text-gray-500" />
                             {template.estimatedHours}
+                          </div>
+                        </td>
+                        <td className="p-2">
+                          <div className="flex items-center gap-1">
+                            <span className="text-green-600 font-medium">€{template.sellingPrice}</span>
                           </div>
                         </td>
                         <td className="p-2">
@@ -530,6 +549,17 @@ export default function ActivitiesPage() {
                   min="0"
                   value={editingTemplate.estimatedHours || ''}
                   onChange={(e) => setEditingTemplate({ ...editingTemplate, estimatedHours: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-sellingPrice">Verkoopprijs per Uur (€)</Label>
+                <Input
+                  id="edit-sellingPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editingTemplate.sellingPrice || ''}
+                  onChange={(e) => setEditingTemplate({ ...editingTemplate, sellingPrice: parseFloat(e.target.value) || 0 })}
                 />
               </div>
               <Button onClick={updateTemplate} className="w-full">

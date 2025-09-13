@@ -21,14 +21,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, category, estimatedHours } = body;
+    const { name, description, category, estimatedHours, sellingPrice } = body;
 
     const activityTemplate = await prisma.activityTemplate.create({
       data: {
         name,
         description,
         category,
-        estimatedHours
+        estimatedHours,
+        sellingPrice: sellingPrice || 75 // Default to €75 if not provided
       }
     });
 

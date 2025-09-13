@@ -41,6 +41,7 @@ interface ActivityTemplate {
   description: string;
   category: string;
   estimatedHours: number;
+  sellingPrice: number;
   isActive: boolean;
 }
 
@@ -270,8 +271,7 @@ export default function PackagesPage() {
     const calculatedPrice = composeForm.activities.reduce((sum, a) => {
       const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
       if (activity) {
-        const hourlyRate = 50; // €50 per uur
-        return sum + (activity.estimatedHours * a.quantity * hourlyRate);
+        return sum + (activity.estimatedHours * a.quantity * activity.sellingPrice);
       }
       return sum;
     }, 0);
@@ -376,9 +376,8 @@ export default function PackagesPage() {
     return activities.reduce((total, activity) => {
       const template = activityTemplates.find(at => at.id === activity.activityTemplateId);
       if (template) {
-        // Bereken prijs op basis van geschatte uren (bijvoorbeeld €50 per uur)
-        const hourlyRate = 50;
-        return total + (template.estimatedHours * activity.quantity * hourlyRate);
+        // Bereken prijs op basis van verkoopprijs per uur
+        return total + (template.estimatedHours * activity.quantity * template.sellingPrice);
       }
       return total;
     }, 0);
@@ -388,9 +387,8 @@ export default function PackagesPage() {
     return activities.reduce((total, activity) => {
       const template = activityTemplates.find(at => at.id === activity.activityTemplateId);
       if (template) {
-        // Bereken kostprijs op basis van gemiddeld uurtarief van €50 per uur
-        const hourlyRate = 50;
-        return total + (template.estimatedHours * activity.quantity * hourlyRate);
+        // Bereken kostprijs op basis van verkoopprijs per uur
+        return total + (template.estimatedHours * activity.quantity * template.sellingPrice);
       }
       return total;
     }, 0);
@@ -507,13 +505,12 @@ export default function PackagesPage() {
 
   const calculatePackageCost = (packageId: string) => {
     const activities = getPackageActivities(packageId);
-    // Bereken kostprijs op basis van gemiddeld uurtarief van €50
-    const averageHourlyRate = 50;
-    const totalHours = activities.reduce((sum, pa) => {
+    // Bereken kostprijs op basis van verkoopprijzen per activiteit
+    return activities.reduce((sum, pa) => {
       const hours = pa.activityTemplate?.estimatedHours ?? 0;
-      return sum + (hours * pa.quantity);
+      const sellingPrice = pa.activityTemplate?.sellingPrice ?? 75;
+      return sum + (hours * pa.quantity * sellingPrice);
     }, 0);
-    return totalHours * averageHourlyRate;
   };
 
   const getUsageStatus = (percentage: number) => {
@@ -909,7 +906,7 @@ export default function PackagesPage() {
                       </span>
                     </div>
                     <div className="text-xs text-gray-500 mt-2">
-                      * Kostprijs wordt berekend op basis van €50 per uur
+                      * Kostprijs wordt berekend op basis van verkoopprijzen per activiteit
                     </div>
                   </div>
                 </CardContent>
@@ -1204,15 +1201,14 @@ export default function PackagesPage() {
                         value={composeForm.activities.reduce((sum, a) => {
                           const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
                           if (activity) {
-                            const hourlyRate = 50; // €50 per uur
-                            return sum + (activity.estimatedHours * a.quantity * hourlyRate);
+                            return sum + (activity.estimatedHours * a.quantity * activity.sellingPrice);
                           }
                           return sum;
                         }, 0)}
                         readOnly
                         className="bg-gray-50"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Automatisch berekend op basis van €50/uur</p>
+                      <p className="text-xs text-gray-500 mt-1">Automatisch berekend op basis van verkoopprijzen per activiteit</p>
                     </div>
                   </div>
                 </div>
@@ -1294,8 +1290,7 @@ export default function PackagesPage() {
                       €{composeForm.activities.reduce((sum, a) => {
                         const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
                         if (activity) {
-                          const hourlyRate = 50; // €50 per uur
-                          return sum + (activity.estimatedHours * a.quantity * hourlyRate);
+                          return sum + (activity.estimatedHours * a.quantity * activity.sellingPrice);
                         }
                         return sum;
                       }, 0)}
@@ -1308,7 +1303,7 @@ export default function PackagesPage() {
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 mt-2">
-                    * Kostprijs wordt berekend op basis van €50 per uur
+                    * Kostprijs wordt berekend op basis van verkoopprijzen per activiteit
                   </div>
                 </div>
               </CardContent>

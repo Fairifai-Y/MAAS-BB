@@ -8,7 +8,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, category, estimatedHours } = body;
+    const { name, description, category, estimatedHours, sellingPrice } = body;
 
     const activityTemplate = await prisma.activityTemplate.update({
       where: { id },
@@ -16,7 +16,8 @@ export async function PUT(
         name,
         description,
         category,
-        estimatedHours: parseFloat(estimatedHours)
+        estimatedHours: parseFloat(estimatedHours),
+        sellingPrice: parseFloat(sellingPrice) || 75
       }
     });
 
