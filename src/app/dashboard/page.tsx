@@ -19,7 +19,9 @@ import {
   Globe,
   Mail,
   Share2,
-  Settings
+  Settings,
+  BarChart3,
+  History
 } from 'lucide-react';
 import CustomerLayout from '@/components/customer-layout';
 import { useUser } from '@clerk/nextjs';
@@ -72,6 +74,14 @@ interface DashboardData {
   pendingActivities: number;
 }
 
+interface ReportData {
+  actions: any[];
+  activities: any[];
+  totalHours: number;
+  completedActions: number;
+  pendingActions: number;
+}
+
 export default function CustomerDashboard() {
   const { user, isLoaded } = useUser();
   const [dashboardData, setDashboardData] = useState<DashboardData>({
@@ -83,6 +93,16 @@ export default function CustomerDashboard() {
     completedActivities: 0,
     pendingActivities: 0
   });
+  const [reportData, setReportData] = useState<ReportData>({
+    actions: [],
+    activities: [],
+    totalHours: 0,
+    completedActions: 0,
+    pendingActions: 0
+  });
+  const [showReports, setShowReports] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('3months');
+  const [isLoadingReports, setIsLoadingReports] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -228,20 +248,133 @@ export default function CustomerDashboard() {
     return isAdmin(user.publicMetadata?.role as string || '');
   };
 
+  const fetchReportData = async (period: string) => {
+    setIsLoadingReports(true);
+    try {
+      const [actionsResponse, activitiesResponse] = await Promise.all([
+        fetch(`/api/employee/reports?period=${period}&type=actions`),
+        fetch(`/api/employee/reports?period=${period}&type=activities`)
+      ]);
+
+      let actions = [];
+      let activities = [];
+
+      if (actionsResponse.ok) {
+        actions = await actionsResponse.json();
+      } else {
+        console.error('Failed to fetch report actions:', actionsResponse.status);
+      }
+
+      if (activitiesResponse.ok) {
+        activities = await activitiesResponse.json();
+      } else {
+        console.error('Failed to fetch report activities:', activitiesResponse.status);
+      }
+
+      // Ensure arrays are valid
+      if (!Array.isArray(activities)) {
+        activities = [];
+      }
+      if (!Array.isArray(actions)) {
+        actions = [];
+      }
+
+      const totalHours = actions.reduce((sum: number, action: any) => 
+        sum + (Number(action.actualHours) || Number(action.plannedHours) || 0), 0
+      );
+
+      const completedActions = actions.filter((a: any) => 
+        a.status === 'COMPLETED'
+      ).length;
+
+      const pendingActions = actions.filter((a: any) => 
+        a.status === 'PLANNED' || a.status === 'IN_PROGRESS'
+      ).length;
+
+      setReportData({
+        actions,
+        activities,
+        totalHours: Number(totalHours) || 0,
+        completedActions: Number(completedActions) || 0,
+        pendingActions: Number(pendingActions) || 0
+      });
+    } catch (error) {
+      console.error('Failed to fetch report data:', error);
+      setReportData({
+        actions: [],
+        activities: [],
+        totalHours: 0,
+        completedActions: 0,
+        pendingActions: 0
+      });
+    } finally {
+      setIsLoadingReports(false);
+    }
+  };
+
+  const handlePeriodChange = (period: string) => {
+    setSelectedPeriod(period);
+    fetchReportData(period);
+  };
+
+  const toggleReports = () => {
+    if (!showReports) {
+      fetchReportData(selectedPeriod);
+    }
+    setShowReports(!showReports);
+  };
+
   return (
     <CustomerLayout title="Mijn Fitchannel Dashboard" description="Welkom terug! Hier vind je een overzicht van jouw acties en werkzaamheden.">
       
-      {/* Admin Button - Only visible for admin users */}
-      {isLoaded && isUserAdmin() && (
-        <div className="mb-6 flex justify-end">
+      {/* Admin Button and Reports Toggle */}
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={toggleReports}
+            variant={showReports ? "default" : "outline"}
+            className="flex items-center"
+          >
+            {showReports ? (
+              <>
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Verberg Rapportage
+              </>
+            ) : (
+              <>
+                <History className="w-4 h-4 mr-2" />
+                Toon Rapportage
+              </>
+            )}
+          </Button>
+          
+          {showReports && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Periode:</span>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => handlePeriodChange(e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="3months">3 Maanden</option>
+                <option value="6months">6 Maanden</option>
+                <option value="1year">1 Jaar</option>
+                <option value="all">Alle Tijd</option>
+              </select>
+            </div>
+          )}
+        </div>
+        
+        {/* Admin Button - Only visible for admin users */}
+        {isLoaded && isUserAdmin() && (
           <a href="/admin">
             <Button className="flex items-center">
               <Settings className="w-4 h-4 mr-2" />
               Admin Panel
             </Button>
           </a>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Employee Overview Section */}
       <div className="mb-8">
@@ -303,6 +436,124 @@ export default function CustomerDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Reports Section */}
+      {showReports && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Historische Rapportage</h2>
+          
+          {isLoadingReports ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+                <span className="text-gray-600">Rapportage laden...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Totaal Acties</CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportData.actions.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {reportData.completedActions} afgerond
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Totaal Uren</CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{Number(reportData.totalHours || 0).toFixed(1)}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Over geselecteerde periode
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Afgeronde Acties</CardTitle>
+                  <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportData.completedActions}</div>
+                  <p className="text-xs text-muted-foreground">
+                    In geselecteerde periode
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Openstaande Acties</CardTitle>
+                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{reportData.pendingActions}</div>
+                  <p className="text-xs text-muted-foreground">
+                    In geselecteerde periode
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Historical Actions List */}
+          {!isLoadingReports && reportData.actions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <History className="w-5 h-5 mr-2" />
+                  Historische Acties ({selectedPeriod === 'all' ? 'Alle Tijd' : selectedPeriod})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {reportData.actions.slice(0, 10).map((action: any) => (
+                    <div key={action.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">{action.title}</p>
+                        <p className="text-sm text-gray-600">
+                          {action.description} • {new Date(action.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{Number(action.actualHours || action.plannedHours || 0).toFixed(1)} uren</p>
+                        <Badge className={getActivityStatusColor(action.status)}>
+                          {action.status === 'COMPLETED' ? 'Afgerond' : 
+                           action.status === 'IN_PROGRESS' ? 'Bezig' : 'Gepland'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {reportData.actions.length > 10 && (
+                    <p className="text-center text-sm text-gray-500 mt-4">
+                      En {reportData.actions.length - 10} meer acties...
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {!isLoadingReports && reportData.actions.length === 0 && (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Geen historische data</h3>
+                <p className="text-gray-600">Er zijn geen acties gevonden voor de geselecteerde periode.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* Recent Actions */}
       <Card>

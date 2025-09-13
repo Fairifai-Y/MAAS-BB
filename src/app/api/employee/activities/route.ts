@@ -37,8 +37,19 @@ export async function GET() {
       );
     }
 
-    // Get all activities (like admin does) so employees can create actions for any activity
+    // Get activities for this employee - only current month for dashboard
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
     const activities = await prisma.activity.findMany({
+      where: {
+        employeeId: employee.id,
+        createdAt: {
+          gte: startOfMonth,
+          lt: endOfMonth
+        }
+      },
       include: {
         customer_packages: {
           include: {
