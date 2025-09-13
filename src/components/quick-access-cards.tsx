@@ -11,8 +11,8 @@ export default function QuickAccessCards() {
   // Show loading state while checking auth
   if (!isLoaded) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
           <Card key={i} className="hover:shadow-xl transition-all duration-300">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-gray-200 rounded-lg mx-auto mb-4 animate-pulse"></div>
@@ -28,7 +28,7 @@ export default function QuickAccessCards() {
   // If not signed in, show auth links
   if (!isSignedIn) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link href="/auth">
           <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
             <CardContent className="p-6 text-center">
@@ -59,20 +59,8 @@ export default function QuickAccessCards() {
               <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Rapportages</h3>
-              <p className="text-gray-600 text-sm">Analytics en overzichten</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/auth">
-          <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Settings className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Instellingen</h3>
-              <p className="text-gray-600 text-sm">Platform configuratie</p>
+              <h3 className="font-semibold text-lg mb-2">Admin Panel</h3>
+              <p className="text-gray-600 text-sm">Beheer en rapportages</p>
             </CardContent>
           </Card>
         </Link>
@@ -82,7 +70,7 @@ export default function QuickAccessCards() {
 
   // If signed in, show actual functionality links
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Link href="/dashboard">
         <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
           <CardContent className="p-6 text-center">
@@ -107,26 +95,14 @@ export default function QuickAccessCards() {
         </Card>
       </Link>
 
-      <Link href="/admin/reports">
+      <Link href="/admin">
         <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
           <CardContent className="p-6 text-center">
             <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Rapportages</h3>
-            <p className="text-gray-600 text-sm">Analytics en overzichten</p>
-          </CardContent>
-        </Card>
-      </Link>
-
-      <Link href="/admin/settings">
-        <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Settings className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Instellingen</h3>
-            <p className="text-gray-600 text-sm">Platform configuratie</p>
+            <h3 className="font-semibold text-lg mb-2">Admin Panel</h3>
+            <p className="text-gray-600 text-sm">Beheer en rapportages</p>
           </CardContent>
         </Card>
       </Link>

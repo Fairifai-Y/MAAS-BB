@@ -19,7 +19,7 @@ export default function DynamicHeader() {
                 alt="Fitchannel Logo"
                 width={200}
                 height={64}
-                className="h-16 w-auto cursor-pointer"
+                className="h-16 w-auto cursor-pointer object-contain"
               />
             </Link>
           </div>
