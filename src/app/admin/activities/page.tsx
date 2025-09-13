@@ -226,8 +226,8 @@ export default function ActivitiesPage() {
       description="Beheer activiteitenlijsten en pakket samenstellingen"
     >
       {/* Header Actions */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           {/* Search Bar */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -255,7 +255,7 @@ export default function ActivitiesPage() {
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Nieuwe Activiteit
             </Button>
