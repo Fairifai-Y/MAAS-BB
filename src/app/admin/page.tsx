@@ -2,14 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
   Users, 
   Clock, 
   DollarSign, 
   TrendingUp,
-  Loader2
+  Loader2,
+  BarChart3,
+  PieChart,
+  LineChart as LineChartIcon
 } from 'lucide-react';
 import AdminLayout from '@/components/admin-layout';
+import { LineChart, BarChart, DoughnutChart, createLineChartData, createBarChartData, createDoughnutChartData } from '@/components/ui/charts';
 
 
 
@@ -32,6 +37,15 @@ interface DashboardStats {
   efficiencyPercentage: number;
 }
 
+interface ChartData {
+  revenue?: Array<{ month: string; revenue: number }>;
+  hours?: Array<{ month: string; hours: number }>;
+  customers?: Array<{ month: string; active: number; inactive: number; total: number }>;
+  activities?: Array<{ month: string; completed: number; pending: number; total: number; hours: number }>;
+  packageDistribution?: Array<{ name: string; count: number }>;
+  categoryDistribution?: Array<{ category: string; count: number; hours: number }>;
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalCustomers: 0,
@@ -52,6 +66,10 @@ export default function AdminDashboard() {
     efficiencyPercentage: 0
   });
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [chartData, setChartData] = useState<ChartData>({});
+  const [isLoadingCharts, setIsLoadingCharts] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('6months');
+  const [showCharts, setShowCharts] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -121,6 +139,37 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchChartData = async (period: string) => {
+    setIsLoadingCharts(true);
+    try {
+      const response = await fetch(`/api/admin/charts?period=${period}&type=all`);
+      if (response.ok) {
+        const data = await response.json();
+        setChartData(data);
+      } else {
+        console.error('Failed to fetch chart data:', response.status);
+        setChartData({});
+      }
+    } catch (error) {
+      console.error('Failed to fetch chart data:', error);
+      setChartData({});
+    } finally {
+      setIsLoadingCharts(false);
+    }
+  };
+
+  const handlePeriodChange = (period: string) => {
+    setSelectedPeriod(period);
+    fetchChartData(period);
+  };
+
+  const toggleCharts = () => {
+    if (!showCharts) {
+      fetchChartData(selectedPeriod);
+    }
+    setShowCharts(!showCharts);
+  };
+
 
 
   return (
@@ -128,7 +177,215 @@ export default function AdminDashboard() {
       title="Admin Dashboard" 
       description="Beheer je platform en pakketten"
     >
+      
+      {/* Charts Toggle and Period Selector */}
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={toggleCharts}
+            variant={showCharts ? "default" : "outline"}
+            className="flex items-center"
+          >
+            {showCharts ? (
+              <>
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Verberg Grafieken
+              </>
+            ) : (
+              <>
+                <LineChartIcon className="w-4 h-4 mr-2" />
+                Toon Grafieken
+              </>
+            )}
+          </Button>
+          
+          {showCharts && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Periode:</span>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => handlePeriodChange(e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="1month">1 Maand</option>
+                <option value="3months">3 Maanden</option>
+                <option value="6months">6 Maanden</option>
+                <option value="1year">1 Jaar</option>
+              </select>
+            </div>
+          )}
+        </div>
+      </div>
 
+      {/* Charts Section */}
+      {showCharts && (
+        <div className="mb-8">
+          {isLoadingCharts ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+              <span className="ml-2 text-gray-600">Grafieken laden...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Revenue Chart */}
+              {chartData.revenue && chartData.revenue.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <DollarSign className="w-5 h-5 mr-2" />
+                      Omzet Over Tijd
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <LineChart
+                      data={createLineChartData(
+                        chartData.revenue.map(item => item.month),
+                        [{
+                          label: 'Omzet (€)',
+                          data: chartData.revenue.map(item => item.revenue),
+                          color: '#10B981'
+                        }]
+                      )}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Hours Chart */}
+              {chartData.hours && chartData.hours.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Clock className="w-5 h-5 mr-2" />
+                      Uren Over Tijd
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <LineChart
+                      data={createLineChartData(
+                        chartData.hours.map(item => item.month),
+                        [{
+                          label: 'Uren',
+                          data: chartData.hours.map(item => item.hours),
+                          color: '#3B82F6'
+                        }]
+                      )}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Customer Growth Chart */}
+              {chartData.customers && chartData.customers.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Users className="w-5 h-5 mr-2" />
+                      Klant Groei
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <BarChart
+                      data={createBarChartData(
+                        chartData.customers.map(item => item.month),
+                        [
+                          {
+                            label: 'Actieve Klanten',
+                            data: chartData.customers.map(item => item.active),
+                            color: '#10B981'
+                          },
+                          {
+                            label: 'Inactieve Klanten',
+                            data: chartData.customers.map(item => item.inactive),
+                            color: '#EF4444'
+                          }
+                        ]
+                      )}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Activities Chart */}
+              {chartData.activities && chartData.activities.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <TrendingUp className="w-5 h-5 mr-2" />
+                      Activiteiten Over Tijd
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <BarChart
+                      data={createBarChartData(
+                        chartData.activities.map(item => item.month),
+                        [
+                          {
+                            label: 'Voltooid',
+                            data: chartData.activities.map(item => item.completed),
+                            color: '#10B981'
+                          },
+                          {
+                            label: 'In Behandeling',
+                            data: chartData.activities.map(item => item.pending),
+                            color: '#F59E0B'
+                          }
+                        ]
+                      )}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Package Distribution */}
+              {chartData.packageDistribution && chartData.packageDistribution.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <PieChart className="w-5 h-5 mr-2" />
+                      Pakket Verdeling
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DoughnutChart
+                      data={createDoughnutChartData(
+                        chartData.packageDistribution.map(item => item.name),
+                        chartData.packageDistribution.map(item => item.count)
+                      )}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Category Distribution */}
+              {chartData.categoryDistribution && chartData.categoryDistribution.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <PieChart className="w-5 h-5 mr-2" />
+                      Activiteit Categorieën
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DoughnutChart
+                      data={createDoughnutChartData(
+                        chartData.categoryDistribution.map(item => item.category),
+                        chartData.categoryDistribution.map(item => item.count)
+                      )}
+                      height={250}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
