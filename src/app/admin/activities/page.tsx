@@ -253,13 +253,15 @@ export default function ActivitiesPage() {
             ))}
           </select>
         </div>
+        <Button 
+          className="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto"
+          onClick={() => setIsCreateDialogOpen(true)}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Nieuwe Activiteit
+        </Button>
+        
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />
-              Nieuwe Activiteit
-            </Button>
-          </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Nieuwe Activiteit Template</DialogTitle>
