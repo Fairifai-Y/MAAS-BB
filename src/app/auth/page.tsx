@@ -5,14 +5,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Mail, Lock } from 'lucide-react';
-import { getAllowedEmailDomainsClient } from '@/lib/auth-utils';
+import { Lock } from 'lucide-react';
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
   const [clerkError, setClerkError] = useState<string | null>(null);
   const router = useRouter();
-  const allowedDomains = getAllowedEmailDomainsClient();
 
   useEffect(() => {
     // Listen for Clerk errors
@@ -80,20 +78,6 @@ export default function AuthPage() {
           </Card>
         )}
 
-        {/* Domain Restriction Notice */}
-        <Card className="mb-6 border-amber-200 bg-amber-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-amber-800 flex items-center">
-              <Mail className="w-4 h-4 mr-2" />
-              Toegang Beperkt
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-sm text-amber-700">
-              Alleen email adressen van de volgende domeinen hebben toegang tot dit platform: {allowedDomains.join(', ')}.
-            </p>
-          </CardContent>
-        </Card>
 
         {/* Auth Toggle */}
         <Card className="mb-6">
@@ -121,13 +105,18 @@ export default function AuthPage() {
                 fallbackRedirectUrl="/post-auth"
                 appearance={{
                   elements: {
-                    formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+                    formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
                     card: 'shadow-none',
                     headerTitle: 'hidden',
                     headerSubtitle: 'hidden',
                     socialButtonsBlockButton: 'border-gray-300 hover:bg-gray-50',
                     formFieldInput: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-                    footerActionLink: 'text-blue-600 hover:text-blue-700'
+                    footerActionLink: 'text-blue-600 hover:text-blue-700',
+                    formButtonSecondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
+                    identityPreviewText: 'text-gray-600',
+                    formFieldLabel: 'text-gray-700',
+                    formFieldSuccessText: 'text-green-600',
+                    formFieldErrorText: 'text-red-600'
                   }
                 }}
               />
@@ -136,13 +125,18 @@ export default function AuthPage() {
                 fallbackRedirectUrl="/post-auth"
                 appearance={{
                   elements: {
-                    formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+                    formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
                     card: 'shadow-none',
                     headerTitle: 'hidden',
                     headerSubtitle: 'hidden',
                     socialButtonsBlockButton: 'border-gray-300 hover:bg-gray-50',
                     formFieldInput: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-                    footerActionLink: 'text-blue-600 hover:text-blue-700'
+                    footerActionLink: 'text-blue-600 hover:text-blue-700',
+                    formButtonSecondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
+                    identityPreviewText: 'text-gray-600',
+                    formFieldLabel: 'text-gray-700',
+                    formFieldSuccessText: 'text-green-600',
+                    formFieldErrorText: 'text-red-600'
                   }
                 }}
               />
@@ -158,8 +152,7 @@ export default function AuthPage() {
               <div>
                 <h3 className="text-sm font-medium text-green-800">Veilige Toegang</h3>
                 <p className="text-sm text-green-700 mt-1">
-                  Deze applicatie gebruikt beveiligde authenticatie en is alleen toegankelijk 
-                  voor geautoriseerde Fitchannel medewerkers.
+                  Beveiligde authenticatie voor Fitchannel medewerkers.
                 </p>
               </div>
             </div>
