@@ -72,8 +72,29 @@ export async function GET() {
     const totalYearlyHours = totalWeeklyHours * 45; // 45 werkweken per jaar
     const availableHoursPerMonth = Math.round((totalYearlyHours / 12) * 100) / 100; // Gemiddeld per maand
     
-    // Bereken ingezette uren per maand (totaal uren van alle actieve pakketten)
-    const usedHoursPerMonth = totalHours;
+    // Bereken verkochte uren per maand (totaal uren van alle actieve pakketten)
+    const soldHoursPerMonth = totalHours;
+    
+    // Bereken uitgevoerde uren per maand (uren uit de activity tabel)
+    const executedActivities = await prisma.activity.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // Begin van deze maand
+          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) // Begin van volgende maand
+        }
+      }
+    });
+    
+    const executedHoursPerMonth = executedActivities.reduce((sum, activity) => {
+      const hours = Number(activity.hours) || 0;
+      return sum + hours;
+    }, 0);
+    
+    // Bereken declarabel percentage (beschikbare uren / verkochte uren)
+    const declarablePercentage = soldHoursPerMonth > 0 ? (availableHoursPerMonth / soldHoursPerMonth) * 100 : 0;
+    
+    // Bereken efficiëntie percentage (verkochte uren / uitgevoerde uren)
+    const efficiencyPercentage = executedHoursPerMonth > 0 ? (soldHoursPerMonth / executedHoursPerMonth) * 100 : 0;
 
     const realStats = {
       totalCustomers: activeCustomers,
@@ -88,7 +109,10 @@ export async function GET() {
       averagePackagePrice: Math.round(averagePackagePrice * 100) / 100,
       pendingActivities: 0, // Placeholder voor toekomstige implementatie
       availableHoursPerMonth: availableHoursPerMonth,
-      usedHoursPerMonth: Math.round(usedHoursPerMonth * 100) / 100
+      soldHoursPerMonth: Math.round(soldHoursPerMonth * 100) / 100,
+      executedHoursPerMonth: Math.round(executedHoursPerMonth * 100) / 100,
+      declarablePercentage: Math.round(declarablePercentage * 100) / 100,
+      efficiencyPercentage: Math.round(efficiencyPercentage * 100) / 100
     };
 
     return NextResponse.json(realStats);

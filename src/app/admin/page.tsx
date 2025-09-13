@@ -26,7 +26,10 @@ interface DashboardStats {
   averagePackagePrice: number;
   pendingActivities: number;
   availableHoursPerMonth: number;
-  usedHoursPerMonth: number;
+  soldHoursPerMonth: number;
+  executedHoursPerMonth: number;
+  declarablePercentage: number;
+  efficiencyPercentage: number;
 }
 
 export default function AdminDashboard() {
@@ -43,7 +46,10 @@ export default function AdminDashboard() {
     averagePackagePrice: 0,
     pendingActivities: 0,
     availableHoursPerMonth: 0,
-    usedHoursPerMonth: 0
+    soldHoursPerMonth: 0,
+    executedHoursPerMonth: 0,
+    declarablePercentage: 0,
+    efficiencyPercentage: 0
   });
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
@@ -86,7 +92,10 @@ export default function AdminDashboard() {
           averagePackagePrice: 0,
           pendingActivities: 0,
           availableHoursPerMonth: 0,
-          usedHoursPerMonth: 0
+          soldHoursPerMonth: 0,
+          executedHoursPerMonth: 0,
+          declarablePercentage: 0,
+          efficiencyPercentage: 0
         });
       }
     } catch (error) {
@@ -104,7 +113,10 @@ export default function AdminDashboard() {
         averagePackagePrice: 0,
         pendingActivities: 0,
         availableHoursPerMonth: 0,
-        usedHoursPerMonth: 0
+        soldHoursPerMonth: 0,
+        executedHoursPerMonth: 0,
+        declarablePercentage: 0,
+        efficiencyPercentage: 0
       });
     }
   };
@@ -340,7 +352,7 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingezette Uren per Maand</CardTitle>
+            <CardTitle className="text-sm font-medium">Verkochte Uren per Maand</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -351,9 +363,100 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <>
-                <div className="text-2xl font-bold">{stats.usedHoursPerMonth || 0}h</div>
+                <div className="text-2xl font-bold">{stats.soldHoursPerMonth || 0}h</div>
                 <p className="text-xs text-muted-foreground">
-                  Uren toegewezen aan klanten
+                  Uren verkocht aan klanten
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* New Metrics - Uitgevoerde Uren en Percentages */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Uitgevoerde Uren per Maand</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingStats ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
+                <span className="text-sm text-gray-500">Laden...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats.executedHoursPerMonth || 0}h</div>
+                <p className="text-xs text-muted-foreground">
+                  Uren daadwerkelijk uitgevoerd
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Declarabel Percentage</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingStats ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
+                <span className="text-sm text-gray-500">Laden...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats.declarablePercentage || 0}%</div>
+                <p className="text-xs text-muted-foreground">
+                  Beschikbare / Verkochte uren
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Efficiëntie Percentage</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingStats ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
+                <span className="text-sm text-gray-500">Laden...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats.efficiencyPercentage || 0}%</div>
+                <p className="text-xs text-muted-foreground">
+                  Verkochte / Uitgevoerde uren
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Capaciteit Gebruik</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingStats ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
+                <span className="text-sm text-gray-500">Laden...</span>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats.availableHoursPerMonth > 0 ? 
+                    Math.round((stats.soldHoursPerMonth / stats.availableHoursPerMonth) * 100) : 0}%
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Verkochte / Beschikbare uren
                 </p>
               </>
             )}
