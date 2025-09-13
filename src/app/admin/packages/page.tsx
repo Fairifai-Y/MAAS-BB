@@ -261,6 +261,21 @@ export default function PackagesPage() {
       return;
     }
 
+    // Bereken max uren en prijs dynamisch
+    const calculatedMaxHours = composeForm.activities.reduce((sum, a) => {
+      const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
+      return sum + ((activity?.estimatedHours || 0) * a.quantity);
+    }, 0);
+
+    const calculatedPrice = composeForm.activities.reduce((sum, a) => {
+      const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
+      if (activity) {
+        const hourlyRate = 50; // €50 per uur
+        return sum + (activity.estimatedHours * a.quantity * hourlyRate);
+      }
+      return sum;
+    }, 0);
+
     try {
       // Eerst het pakket aanmaken
       const packageResponse = await fetch('/api/packages', {
@@ -269,8 +284,8 @@ export default function PackagesPage() {
         body: JSON.stringify({
           name: composeForm.name,
           description: composeForm.description,
-          maxHours: composeForm.maxHours,
-          price: composeForm.price
+          maxHours: calculatedMaxHours,
+          price: calculatedPrice
         })
       });
 
@@ -1168,22 +1183,36 @@ export default function PackagesPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="compose-maxHours">Max Uren</Label>
+                      <Label htmlFor="compose-maxHours">Max Uren (Berekend)</Label>
                       <Input
                         id="compose-maxHours"
                         type="number"
-                        value={composeForm.maxHours || ''}
-                        onChange={(e) => setComposeForm({ ...composeForm, maxHours: parseInt(e.target.value) || 0 })}
+                        value={composeForm.activities.reduce((sum, a) => {
+                          const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
+                          return sum + ((activity?.estimatedHours || 0) * a.quantity);
+                        }, 0)}
+                        readOnly
+                        className="bg-gray-50"
                       />
+                      <p className="text-xs text-gray-500 mt-1">Automatisch berekend op basis van geselecteerde activiteiten</p>
                     </div>
                     <div>
-                      <Label htmlFor="compose-price">Prijs</Label>
+                      <Label htmlFor="compose-price">Prijs (Berekend)</Label>
                       <Input
                         id="compose-price"
                         type="number"
-                        value={composeForm.price || ''}
-                        onChange={(e) => setComposeForm({ ...composeForm, price: parseInt(e.target.value) || 0 })}
+                        value={composeForm.activities.reduce((sum, a) => {
+                          const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
+                          if (activity) {
+                            const hourlyRate = 50; // €50 per uur
+                            return sum + (activity.estimatedHours * a.quantity * hourlyRate);
+                          }
+                          return sum;
+                        }, 0)}
+                        readOnly
+                        className="bg-gray-50"
                       />
+                      <p className="text-xs text-gray-500 mt-1">Automatisch berekend op basis van €50/uur</p>
                     </div>
                   </div>
                 </div>
@@ -1251,8 +1280,8 @@ export default function PackagesPage() {
                     <span>{composeForm.activities.filter(a => a.quantity > 0).length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Totaal uren:</span>
-                    <span>
+                    <span>Totaal uren (Berekend):</span>
+                    <span className="font-bold">
                       {composeForm.activities.reduce((sum, a) => {
                         const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
                         return sum + ((activity?.estimatedHours || 0) * a.quantity);
@@ -1260,10 +1289,26 @@ export default function PackagesPage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
+                    <span>Berekende kostprijs:</span>
+                    <span className="font-bold text-orange-600">
+                      €{composeForm.activities.reduce((sum, a) => {
+                        const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
+                        if (activity) {
+                          const hourlyRate = 50; // €50 per uur
+                          return sum + (activity.estimatedHours * a.quantity * hourlyRate);
+                        }
+                        return sum;
+                      }, 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span>Klant:</span>
                     <span>
                       {customers.find(c => c.id === composeForm.customerId)?.company || 'Niet geselecteerd'}
                     </span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Kostprijs wordt berekend op basis van €50 per uur
                   </div>
                 </div>
               </CardContent>
