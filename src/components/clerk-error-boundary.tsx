@@ -38,10 +38,13 @@ export default function ClerkErrorBoundary({ children }: ClerkErrorBoundaryProps
           event.reason?.stack?.includes('clerk')) {
         console.log('🔄 Clerk promise rejection detected, redirecting to post-auth...');
         
+        // Prevent the default error handling
+        event.preventDefault();
+        
         // Redirect to post-auth page as fallback
         setTimeout(() => {
-          router.push('/post-auth');
-        }, 1000);
+          window.location.href = '/post-auth';
+        }, 500);
       }
     };
 

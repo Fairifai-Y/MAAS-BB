@@ -145,11 +145,11 @@ export default function PostAuthRedirect() {
       syncUser();
     }, 500); // Increased delay to give webhook more time
 
-    // Fallback: if sync fails completely, redirect after 15 seconds
+    // Fallback: if sync fails completely, redirect after 10 seconds
     const fallbackTimeoutId = setTimeout(() => {
       console.log('⚠️ Fallback timeout reached, redirecting to dashboard');
       router.replace('/dashboard');
-    }, 15000);
+    }, 10000);
 
     return () => {
       clearTimeout(timeoutId);

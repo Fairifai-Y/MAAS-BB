@@ -20,17 +20,39 @@ export default function AuthPage() {
       if (event.error?.message?.includes('unexpected response') || 
           event.error?.message?.includes('Clerk')) {
         console.error('🚨 Clerk error detected:', event.error);
-        setClerkError('Er is een probleem opgetreden met de authenticatie. Probeer het opnieuw.');
+        setClerkError('Er is een probleem opgetreden met de authenticatie. Je wordt doorgestuurd...');
         
-        // Auto-redirect after 3 seconds
+        // Auto-redirect after 2 seconds
         setTimeout(() => {
-          router.push('/post-auth');
-        }, 3000);
+          window.location.href = '/post-auth';
+        }, 2000);
+      }
+    };
+
+    // Listen for unhandled promise rejections
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes('unexpected response') || 
+          event.reason?.message?.includes('Clerk')) {
+        console.error('🚨 Clerk promise rejection detected:', event.reason);
+        setClerkError('Er is een probleem opgetreden met de authenticatie. Je wordt doorgestuurd...');
+        
+        // Prevent the default error handling
+        event.preventDefault();
+        
+        // Auto-redirect after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/post-auth';
+        }, 2000);
       }
     };
 
     window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, [router]);
 
   return (
