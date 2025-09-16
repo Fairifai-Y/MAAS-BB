@@ -77,8 +77,8 @@ export async function POST() {
         console.log(`✅ Updated clerkId for user: ${email}`);
       }
 
-      // Update userType if not set (backward compatibility)
-      if (!existingUser.userType) {
+      // Update userType if not set (backward compatibility) or if role is ADMIN but userType is not
+      if (!existingUser.userType || (existingUser.role === 'ADMIN' && existingUser.userType !== 'ADMIN')) {
         const userType = determineUserType(existingUser.email, existingUser.role);
         await prisma.user.update({
           where: { id: existingUser.id },
