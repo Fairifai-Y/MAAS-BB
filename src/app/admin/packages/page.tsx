@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  Plus,
   Edit,
   Trash2,
   Package,
@@ -71,18 +70,11 @@ export default function PackagesPage() {
   const [packageActivities, setPackageActivities] = useState<PackageActivity[]>([]);
   const [customers, setCustomers] = useState<Array<{ id: string; company: string; users: { name: string } }>>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isBuilderDialogOpen, setIsBuilderDialogOpen] = useState(false);
   const [isComposeDialogOpen, setIsComposeDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [editingPackageActivities, setEditingPackageActivities] = useState<Array<{ activityTemplateId: string; quantity: number }>>([]);
-  const [newPackage, setNewPackage] = useState({
-    name: '',
-    description: '',
-    maxHours: 0,
-    price: 0
-  });
   const [composeForm, setComposeForm] = useState({
     name: '',
     description: '',
@@ -164,23 +156,6 @@ export default function PackagesPage() {
     }
   };
 
-  const createPackage = async () => {
-    try {
-      const response = await fetch('/api/packages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPackage)
-      });
-
-      if (response.ok) {
-        setNewPackage({ name: '', description: '', maxHours: 0, price: 0 });
-        setIsCreateDialogOpen(false);
-        fetchPackages();
-      }
-    } catch (error) {
-      console.error('Failed to create package:', error);
-    }
-  };
 
   const updatePackage = async () => {
     if (!editingPackage) return;
@@ -547,15 +522,6 @@ export default function PackagesPage() {
         <div className="flex space-x-3">
           <Button 
             className="bg-amber-600 hover:bg-amber-700 text-white"
-            onClick={() => setIsCreateDialogOpen(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nieuw Pakket
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="border-amber-600 text-amber-600 hover:bg-amber-50"
             onClick={() => setIsComposeDialogOpen(true)}
           >
             <Package className="w-4 h-4 mr-2" />
@@ -564,58 +530,6 @@ export default function PackagesPage() {
         </div>
       </div>
 
-      {/* Create Package Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Nieuw Pakket</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Naam</Label>
-              <Input
-                id="name"
-                value={newPackage.name}
-                onChange={(e) => setNewPackage({ ...newPackage, name: e.target.value })}
-                placeholder="Basis Pakket"
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Beschrijving</Label>
-              <Textarea
-                id="description"
-                value={newPackage.description}
-                onChange={(e) => setNewPackage({ ...newPackage, description: e.target.value })}
-                placeholder="Beschrijving van het pakket..."
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="maxHours">Max Uren</Label>
-                <Input
-                  id="maxHours"
-                  type="number"
-                  value={newPackage.maxHours || ''}
-                  onChange={(e) => setNewPackage({ ...newPackage, maxHours: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="price">Verkoopprijs</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  value={newPackage.price || ''}
-                  onChange={(e) => setNewPackage({ ...newPackage, price: parseInt(e.target.value) || 0 })}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-            <Button onClick={createPackage} className="w-full">
-              Pakket Aanmaken
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Packages Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
