@@ -35,6 +35,28 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    
+    // Check if activity template is in use by any packages
+    const packageActivities = await prisma.packageActivity.findMany({
+      where: { activityTemplateId: id },
+      include: {
+        package: true,
+        activityTemplate: true
+      }
+    });
+
+    if (packageActivities.length > 0) {
+      const packageNames = packageActivities.map(pa => pa.package.name).join(', ');
+      return NextResponse.json(
+        { 
+          error: `Cannot delete activity template. It is currently used in ${packageActivities.length} package(s): ${packageNames}`,
+          packages: packageNames
+        }, 
+        { status: 400 }
+      );
+    }
+
+    // Safe to delete
     await prisma.activityTemplate.delete({
       where: { id }
     });

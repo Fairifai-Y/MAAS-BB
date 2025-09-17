@@ -168,9 +168,13 @@ export default function ActivitiesPage() {
 
       if (response.ok) {
         fetchActivityTemplates();
+      } else {
+        const errorData = await response.json();
+        alert(`Kan activiteit niet verwijderen: ${errorData.error}`);
       }
     } catch (error) {
       console.error('Failed to delete template:', error);
+      alert('Er is een fout opgetreden bij het verwijderen van de activiteit');
     }
   };
 
