@@ -139,7 +139,8 @@ export async function POST(request: NextRequest) {
         plannedHours: Number(plannedHours),
         actualHours: actualHours ? Number(actualHours) : null,
         status: status || 'PLANNED',
-        dueDate: dueDate ? new Date(dueDate) : null,
+        // Default deadline to today if not provided
+        dueDate: dueDate ? new Date(dueDate) : new Date(),
         updatedAt: new Date()
       },
       include: {

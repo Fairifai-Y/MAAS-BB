@@ -166,7 +166,7 @@ export default function ActionsPage() {
       plannedHours: '',
       actualHours: '',
       status: 'PLANNED',
-      dueDate: ''
+      dueDate: new Date().toISOString().split('T')[0]
     });
     setIsCreateDialogOpen(true);
   };
