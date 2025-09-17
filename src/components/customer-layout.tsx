@@ -8,10 +8,12 @@ import {
   BarChart3,
   CheckSquare,
   Home,
-  LayoutDashboard
+  LayoutDashboard,
+  Settings
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
 import EmployeeGuard from '@/components/employee-guard';
+import { useUserRole } from '@/hooks/use-user-role';
 
 interface CustomerLayoutProps {
   children: ReactNode;
@@ -36,6 +38,7 @@ const menuItems = [
 
 export default function CustomerLayout({ children, title, description }: CustomerLayoutProps) {
   const pathname = usePathname();
+  const { isAdmin, isLoadingRole } = useUserRole();
 
   return (
     <EmployeeGuard>
@@ -60,6 +63,15 @@ export default function CustomerLayout({ children, title, description }: Custome
                   Dashboard
                 </Button>
               </a>
+              {/* Admin Button - Only visible for admin users */}
+              {!isLoadingRole && isAdmin && (
+                <a href="/admin">
+                  <Button size="sm" className="flex items-center">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Admin
+                  </Button>
+                </a>
+              )}
             </div>
           </div>
         </div>

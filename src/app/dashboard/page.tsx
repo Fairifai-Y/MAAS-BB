@@ -25,7 +25,6 @@ import {
 } from 'lucide-react';
 import CustomerLayout from '@/components/customer-layout';
 import { useUser } from '@clerk/nextjs';
-import { useUserRole } from '@/hooks/use-user-role';
 
 interface CustomerPackage {
   id: string;
@@ -84,7 +83,6 @@ interface ReportData {
 
 export default function CustomerDashboard() {
   const { user, isLoaded } = useUser();
-  const { isAdmin, isLoadingRole } = useUserRole();
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     packages: [],
     activities: [],
@@ -243,11 +241,6 @@ export default function CustomerDashboard() {
     return Math.min((Number(dashboardData.totalHoursUsed || 0) / pkg.packages.maxHours) * 100, 100);
   };
 
-  // Check if user is admin
-  const isUserAdmin = () => {
-    if (!isLoaded || !user || isLoadingRole) return false;
-    return isAdmin;
-  };
 
   const fetchReportData = async (period: string) => {
     setIsLoadingReports(true);
@@ -328,7 +321,7 @@ export default function CustomerDashboard() {
   return (
     <CustomerLayout title="Mijn Fitchannel Dashboard" description="Welkom terug! Hier vind je een overzicht van jouw acties en werkzaamheden.">
       
-      {/* Admin Button and Reports Toggle */}
+      {/* Reports Toggle */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
           <Button
@@ -365,16 +358,6 @@ export default function CustomerDashboard() {
             </div>
           )}
         </div>
-        
-        {/* Admin Button - Only visible for admin users */}
-        {isLoaded && isUserAdmin() && (
-          <a href="/admin">
-            <Button className="flex items-center">
-              <Settings className="w-4 h-4 mr-2" />
-              Admin Panel
-            </Button>
-          </a>
-        )}
       </div>
 
       {/* Employee Overview Section */}
