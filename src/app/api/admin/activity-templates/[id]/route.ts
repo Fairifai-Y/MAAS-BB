@@ -73,7 +73,18 @@ export async function DELETE(
       );
     }
 
-    // Safe to delete
+    // Safe to delete: first remove any zero-quantity package activities to satisfy FK constraints
+    await prisma.packageActivity.deleteMany({
+      where: {
+        activityTemplateId: id,
+        OR: [
+          { quantity: 0 },
+          { quantity: { lt: 1 } }
+        ]
+      }
+    });
+
+    // Then delete the activity template
     await prisma.activityTemplate.delete({
       where: { id }
     });
