@@ -50,7 +50,27 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingActivity) {
-      // Update existing activity
+      // If quantity is set to 0, decide whether to delete or keep based on existing activities
+      if (quantity === 0) {
+        // Approximation: if there are no activities logged for the package, delete the package-activity
+        const hasAnyActivitiesForPackage = await prisma.activity.count({
+          where: {
+            customer_packages: {
+              packageId
+            }
+          }
+        });
+
+        if (hasAnyActivitiesForPackage === 0) {
+          await prisma.packageActivity.delete({
+            where: { id: existingActivity.id }
+          });
+          return NextResponse.json({ deleted: true });
+        }
+        // Else: fall through to update to quantity 0 to keep history
+      }
+
+      // Update existing activity (including setting quantity to 0 when there is history)
       const updatedActivity = await prisma.packageActivity.update({
         where: {
           id: existingActivity.id

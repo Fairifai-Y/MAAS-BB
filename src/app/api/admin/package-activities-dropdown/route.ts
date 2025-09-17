@@ -29,7 +29,9 @@ export async function GET() {
               }
             }
           }
-        }
+        },
+        // Verberg records met quantity == 0
+        quantity: { gt: 0 }
       },
       orderBy: [
         { package: { name: 'asc' } },
