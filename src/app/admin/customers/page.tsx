@@ -44,6 +44,7 @@ interface Customer {
     name: string;
   };
   customer_packages: Array<{
+    id: string;
     packages: {
       name: string;
       price: number;
@@ -460,6 +461,31 @@ export default function CustomersPage() {
     }
   };
 
+  const removePackageFromCustomer = async (customerPackageId: string, packageName: string, customerName: string) => {
+    if (!confirm(`Weet je zeker dat je het pakket "${packageName}" wilt verwijderen van klant "${customerName}"?`)) return;
+
+    try {
+      const response = await fetch(`/api/admin/customer-packages/${customerPackageId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        fetchData();
+        alert(`Pakket "${packageName}" succesvol verwijderd van klant "${customerName}"!`);
+      } else {
+        const errorData = await response.json();
+        if (errorData.hasActivities) {
+          alert(`Kan pakket niet verwijderen: Er zijn ${errorData.activityCount} activiteit(en) gelogd voor dit pakket.`);
+        } else {
+          alert(`Fout bij verwijderen: ${errorData.error}`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to remove package from customer:', error);
+      alert('Netwerkfout bij verwijderen van pakket');
+    }
+  };
+
   // New Customer functions
   const openNewCustomerDialog = () => {
     setNewCustomerForm({
@@ -726,7 +752,18 @@ export default function CustomersPage() {
                               <div key={index} className="bg-gray-50 p-3 rounded-lg">
                                 <div className="flex justify-between items-center mb-1">
                                   <span className="font-medium text-sm">{cp.packages.name}</span>
-                                  <span className="text-sm font-bold">€{cp.packages.price}</span>
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-sm font-bold">€{cp.packages.price}</span>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => removePackageFromCustomer(cp.id, cp.packages.name, customer.company)}
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
+                                      title="Pakket verwijderen van klant"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </Button>
+                                  </div>
                                 </div>
                                 <div className="flex items-center text-xs text-gray-600">
                                   <Clock className="w-3 h-3 mr-1" />
