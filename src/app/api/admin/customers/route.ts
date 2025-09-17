@@ -30,7 +30,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { company, email, name, phone, address, price, maxHours, isActive } = body;
+    const { company, email, name, phone, address, price, maxHours, isActive, createPackage } = body;
 
     if (!company || !email || !name) {
       return NextResponse.json(
@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // If price and maxHours are provided, create a default package and customer package
-      if (price && maxHours) {
+      // Only create a default package when explicitly requested
+      if (createPackage === true && price && maxHours) {
         // Create a default package
         const defaultPackage = await tx.package.create({
           data: {
