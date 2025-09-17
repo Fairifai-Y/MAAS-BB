@@ -30,7 +30,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { company, email, name, phone, address, price, maxHours, isActive, createPackage } = body;
+    const { company, email, name, phone, address, isActive } = body;
 
     if (!company || !email || !name) {
       return NextResponse.json(
@@ -80,32 +80,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Only create a default package when explicitly requested
-      if (createPackage === true && price && maxHours) {
-        // Create a default package
-        const defaultPackage = await tx.package.create({
-          data: {
-            name: `${company} - Standaard Pakket`,
-            description: `Standaard pakket voor ${company}`,
-            maxHours: Number(maxHours),
-            price: Number(price),
-            isActive: true
-          }
-        });
-
-        // Create customer package
-        await tx.customer_packages.create({
-          data: {
-            id: `${newCustomer.id}-${defaultPackage.id}-${Date.now()}`,
-            customerId: newCustomer.id,
-            packageId: defaultPackage.id,
-            status: 'ACTIVE',
-            startDate: new Date(),
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        });
-      }
+      // Never auto-create a default package; customers will only use composed packages
 
       return { user: newUser, customer: newCustomer };
     });
