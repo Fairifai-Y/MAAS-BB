@@ -70,6 +70,7 @@ interface Activity {
 
 export default function EmployeeActionsPage() {
   const [actions, setActions] = useState<Action[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [packageActivities, setPackageActivities] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,6 +81,7 @@ export default function EmployeeActionsPage() {
   const [editingAction, setEditingAction] = useState<Action | null>(null);
   const [deletingAction, setDeletingAction] = useState<Action | null>(null);
   const [createForm, setCreateForm] = useState({
+    customerId: '',
     packageActivityId: '',
     title: '',
     description: '',
@@ -105,9 +107,9 @@ export default function EmployeeActionsPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [actionsResponse, packageActivitiesResponse] = await Promise.all([
+      const [actionsResponse, customersResponse] = await Promise.all([
         fetch('/api/employee/actions'),
-        fetch('/api/admin/package-activities-dropdown')
+        fetch('/api/admin/customers-dropdown')
       ]);
 
       if (actionsResponse.ok) {
@@ -115,9 +117,9 @@ export default function EmployeeActionsPage() {
         setActions(actionsData);
       }
 
-      if (packageActivitiesResponse.ok) {
-        const packageActivitiesData = await packageActivitiesResponse.json();
-        setPackageActivities(packageActivitiesData);
+      if (customersResponse.ok) {
+        const customersData = await customersResponse.json();
+        setCustomers(customersData);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -166,17 +168,52 @@ export default function EmployeeActionsPage() {
     }
   };
 
+  const fetchPackageActivities = async (customerId: string) => {
+    try {
+      const response = await fetch(`/api/admin/customer-package-activities?customerId=${customerId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPackageActivities(data);
+      } else {
+        console.error('Failed to fetch package activities');
+        setPackageActivities([]);
+      }
+    } catch (error) {
+      console.error('Error fetching package activities:', error);
+      setPackageActivities([]);
+    }
+  };
+
   const openCreateDialog = () => {
     setCreateForm({
+      customerId: '',
       packageActivityId: '',
       title: '',
       description: '',
       plannedHours: '',
       actualHours: '',
       status: 'PLANNED',
-      dueDate: ''
+      dueDate: new Date().toISOString().split('T')[0]
     });
+    setPackageActivities([]); // Reset package activities
     setIsCreateDialogOpen(true);
+  };
+
+  const handleCustomerChange = (customerId: string) => {
+    setCreateForm({ 
+      ...createForm, 
+      customerId,
+      packageActivityId: '', // Reset package activity when customer changes
+      title: '',
+      description: '',
+      plannedHours: ''
+    });
+    
+    if (customerId) {
+      fetchPackageActivities(customerId);
+    } else {
+      setPackageActivities([]);
+    }
   };
 
   const handlePackageActivityChange = (packageActivityId: string) => {
@@ -459,14 +496,39 @@ export default function EmployeeActionsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
+              <Label htmlFor="customer">Klant</Label>
+              <select
+                id="customer"
+                value={createForm.customerId}
+                onChange={(e) => handleCustomerChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecteer eerst een klant</option>
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.displayName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
               <Label htmlFor="packageActivity">Pakket Activiteit</Label>
               <select
                 id="packageActivity"
                 value={createForm.packageActivityId}
                 onChange={(e) => handlePackageActivityChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!createForm.customerId || packageActivities.length === 0}
               >
-                <option value="">Selecteer pakket activiteit</option>
+                <option value="">
+                  {!createForm.customerId 
+                    ? "Selecteer eerst een klant" 
+                    : packageActivities.length === 0 
+                      ? "Geen activiteiten beschikbaar voor deze klant"
+                      : "Selecteer pakket activiteit"
+                  }
+                </option>
                 {packageActivities.map((packageActivity) => (
                   <option key={packageActivity.id} value={packageActivity.id}>
                     {packageActivity.displayName}
