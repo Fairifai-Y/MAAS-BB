@@ -37,6 +37,40 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    // Check if package has any activities
+    const packageActivities = await prisma.packageActivity.findMany({
+      where: { packageId: id }
+    });
+
+    if (packageActivities.length > 0) {
+      return NextResponse.json(
+        { 
+          error: 'Cannot delete package. It contains activities. Please remove all activities first.',
+          hasActivities: true,
+          activityCount: packageActivities.length
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if package is assigned to any customers
+    const customerPackages = await prisma.customer_packages.findMany({
+      where: { packageId: id }
+    });
+
+    if (customerPackages.length > 0) {
+      return NextResponse.json(
+        { 
+          error: 'Cannot delete package. It is assigned to customers. Please remove customer assignments first.',
+          hasCustomers: true,
+          customerCount: customerPackages.length
+        },
+        { status: 400 }
+      );
+    }
+
+    // Safe to delete - package is empty
     await prisma.package.delete({
       where: { id }
     });

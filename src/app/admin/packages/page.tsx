@@ -226,9 +226,20 @@ export default function PackagesPage() {
 
       if (response.ok) {
         fetchPackages();
+        alert('Pakket succesvol verwijderd!');
+      } else {
+        const errorData = await response.json();
+        if (errorData.hasActivities) {
+          alert(`Kan pakket niet verwijderen: Het pakket bevat ${errorData.activityCount} activiteit(en). Verwijder eerst alle activiteiten.`);
+        } else if (errorData.hasCustomers) {
+          alert(`Kan pakket niet verwijderen: Het pakket is toegewezen aan ${errorData.customerCount} klant(en). Verwijder eerst de klanttoewijzingen.`);
+        } else {
+          alert(`Fout bij verwijderen: ${errorData.error}`);
+        }
       }
     } catch (error) {
       console.error('Failed to delete package:', error);
+      alert('Netwerkfout bij verwijderen van pakket');
     }
   };
 
@@ -480,6 +491,11 @@ export default function PackagesPage() {
     return maxHours > 0 ? (totalHours / maxHours) * 100 : 0;
   };
 
+  const isPackageEmpty = (packageId: string) => {
+    const activities = getPackageActivities(packageId);
+    return activities.length === 0;
+  };
+
   const calculatePackageCost = (packageId: string) => {
     const activities = getPackageActivities(packageId);
     // Bereken kostprijs op basis van kostprijs per activiteit (fallback naar verkoopprijs)
@@ -631,18 +647,31 @@ export default function PackagesPage() {
                         <Edit className="w-3 h-3 mr-1" />
                         Bewerken
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deletePackage(pkg.id);
-                        }}
-                        className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-3 h-3 mr-1" />
-                        Verwijderen
-                      </Button>
+                      {isPackageEmpty(pkg.id) ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deletePackage(pkg.id);
+                          }}
+                          className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Verwijderen
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled
+                          className="flex-1 text-gray-400 cursor-not-allowed"
+                          title="Pakket bevat activiteiten - kan niet worden verwijderd"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Verwijderen
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
