@@ -41,6 +41,7 @@ interface ActivityTemplate {
   category: string;
   estimatedHours: number;
   sellingPrice: number;
+  costPrice?: number;
   isActive: boolean;
 }
 
@@ -362,8 +363,9 @@ export default function PackagesPage() {
     return activities.reduce((total, activity) => {
       const template = activityTemplates.find(at => at.id === activity.activityTemplateId);
       if (template) {
-        // Bereken kostprijs op basis van verkoopprijs per uur
-        return total + (template.estimatedHours * activity.quantity * template.sellingPrice);
+        // Gebruik kostprijs per uur indien beschikbaar, anders verkoopprijs per uur
+        const unitCost = template.costPrice ?? template.sellingPrice;
+        return total + (template.estimatedHours * activity.quantity * unitCost);
       }
       return total;
     }, 0);
@@ -480,11 +482,11 @@ export default function PackagesPage() {
 
   const calculatePackageCost = (packageId: string) => {
     const activities = getPackageActivities(packageId);
-    // Bereken kostprijs op basis van verkoopprijzen per activiteit
+    // Bereken kostprijs op basis van kostprijs per activiteit (fallback naar verkoopprijs)
     return activities.reduce((sum, pa) => {
       const hours = pa.activityTemplate?.estimatedHours ?? 0;
-      const sellingPrice = pa.activityTemplate?.sellingPrice ?? 75;
-      return sum + (hours * pa.quantity * sellingPrice);
+      const unitCost = (pa.activityTemplate?.costPrice ?? pa.activityTemplate?.sellingPrice ?? 75);
+      return sum + (hours * pa.quantity * unitCost);
     }, 0);
   };
 
@@ -820,7 +822,7 @@ export default function PackagesPage() {
                       </span>
                     </div>
                     <div className="text-xs text-gray-500 mt-2">
-                      * Kostprijs wordt berekend op basis van verkoopprijzen per activiteit
+                      * Kostprijs wordt berekend op basis van kostprijs per activiteit (fallback naar verkoopprijs)
                     </div>
                   </div>
                 </CardContent>
@@ -1217,7 +1219,7 @@ export default function PackagesPage() {
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 mt-2">
-                    * Kostprijs wordt berekend op basis van verkoopprijzen per activiteit
+                    * Kostprijs wordt berekend op basis van kostprijs per activiteit (fallback naar verkoopprijs)
                   </div>
                 </div>
               </CardContent>

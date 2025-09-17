@@ -32,6 +32,7 @@ model ActivityTemplate {
   category          ActivityCategory
   estimatedHours    Decimal           @db.Decimal(5, 2)
   sellingPrice      Decimal           @default(75.00) @db.Decimal(10, 2) // Verkoopprijs per uur
+  costPrice         Decimal?          @db.Decimal(10, 2) // Kostprijs per uur (optioneel)
   isActive          Boolean           @default(true)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

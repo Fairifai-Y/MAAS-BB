@@ -34,6 +34,7 @@ interface ActivityTemplate {
   category: string;
   estimatedHours: number;
   sellingPrice: number;
+  costPrice?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -66,7 +67,8 @@ export default function ActivitiesPage() {
     description: '',
     category: 'WEBSITE',
     estimatedHours: 0,
-    sellingPrice: 75
+    sellingPrice: 75,
+    costPrice: undefined as number | undefined
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -324,6 +326,17 @@ export default function ActivitiesPage() {
                   onChange={(e) => setNewTemplate({ ...newTemplate, sellingPrice: parseFloat(e.target.value) || 0 })}
                 />
               </div>
+              <div>
+                <Label htmlFor="costPrice">Kostprijs per Uur (€)</Label>
+                <Input
+                  id="costPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newTemplate.costPrice ?? ''}
+                  onChange={(e) => setNewTemplate({ ...newTemplate, costPrice: e.target.value === '' ? undefined : (parseFloat(e.target.value) || 0) })}
+                />
+              </div>
               <Button onClick={createTemplate} className="w-full">
                 Activiteit Aanmaken
               </Button>
@@ -358,6 +371,7 @@ export default function ActivitiesPage() {
                     <th className="text-left p-2">Beschrijving</th>
                     <th className="text-left p-2">Uren</th>
                     <th className="text-left p-2">Prijs/uur</th>
+                    <th className="text-left p-2">Kostprijs/uur</th>
                     <th className="text-left p-2">Status</th>
                     <th className="text-left p-2">Acties</th>
                   </tr>
@@ -385,6 +399,11 @@ export default function ActivitiesPage() {
                         <td className="p-2">
                           <div className="flex items-center gap-1">
                             <span className="text-green-600 font-medium">€{template.sellingPrice}</span>
+                          </div>
+                        </td>
+                        <td className="p-2">
+                          <div className="flex items-center gap-1">
+                            <span className="text-orange-600 font-medium">{template.costPrice != null ? `€${template.costPrice}` : '-'}</span>
                           </div>
                         </td>
                         <td className="p-2">
@@ -560,6 +579,17 @@ export default function ActivitiesPage() {
                   min="0"
                   value={editingTemplate.sellingPrice || ''}
                   onChange={(e) => setEditingTemplate({ ...editingTemplate, sellingPrice: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-costPrice">Kostprijs per Uur (€)</Label>
+                <Input
+                  id="edit-costPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editingTemplate.costPrice ?? ''}
+                  onChange={(e) => setEditingTemplate({ ...editingTemplate!, costPrice: e.target.value === '' ? undefined : (parseFloat(e.target.value) || 0) })}
                 />
               </div>
               <Button onClick={updateTemplate} className="w-full">
