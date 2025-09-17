@@ -129,7 +129,7 @@ export default function ActivitiesPage() {
       });
 
       if (response.ok) {
-        setNewTemplate({ name: '', description: '', category: 'WEBSITE', estimatedHours: 0, sellingPrice: 75 });
+        setNewTemplate({ name: '', description: '', category: 'WEBSITE', estimatedHours: 0, sellingPrice: 75, costPrice: undefined });
         setIsCreateDialogOpen(false);
         fetchActivityTemplates();
       }
