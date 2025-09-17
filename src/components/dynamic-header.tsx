@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { useUser, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Settings } from 'lucide-react';
+import { isAdmin } from '@/lib/auth-utils';
 
 export default function DynamicHeader() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
 
   return (
     <header className="bg-white shadow-sm">
@@ -39,6 +41,15 @@ export default function DynamicHeader() {
                     Dashboard
                   </Button>
                 </Link>
+                {/* Admin Button - Only visible for admin users */}
+                {isLoaded && user && isAdmin(user.publicMetadata?.role as string || '') && (
+                  <Link href="/admin">
+                    <Button size="sm" className="flex items-center">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
                 <UserButton 
                   afterSignOutUrl="/"
                   appearance={{
