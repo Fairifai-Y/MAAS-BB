@@ -38,7 +38,10 @@ export async function DELETE(
     
     // Check if activity template is in use by any packages
     const packageActivities = await prisma.packageActivity.findMany({
-      where: { activityTemplateId: id },
+      where: {
+        activityTemplateId: id,
+        quantity: { gt: 0 }
+      },
       include: {
         package: true,
         activityTemplate: true
