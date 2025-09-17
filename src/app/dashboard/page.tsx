@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import CustomerLayout from '@/components/customer-layout';
 import { useUser } from '@clerk/nextjs';
-import { isAdmin } from '@/lib/auth-utils';
+import { useUserRole } from '@/hooks/use-user-role';
 
 interface CustomerPackage {
   id: string;
@@ -84,6 +84,7 @@ interface ReportData {
 
 export default function CustomerDashboard() {
   const { user, isLoaded } = useUser();
+  const { isAdmin, isLoadingRole } = useUserRole();
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     packages: [],
     activities: [],
@@ -244,8 +245,8 @@ export default function CustomerDashboard() {
 
   // Check if user is admin
   const isUserAdmin = () => {
-    if (!isLoaded || !user) return false;
-    return isAdmin(user.publicMetadata?.role as string || '');
+    if (!isLoaded || !user || isLoadingRole) return false;
+    return isAdmin;
   };
 
   const fetchReportData = async (period: string) => {
