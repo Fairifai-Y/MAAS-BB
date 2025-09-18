@@ -512,6 +512,7 @@ export default function PackagesPage() {
   // Inline editing functions
   const startEditingName = (pkg: Package, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Starting to edit name for package:', pkg.name);
     setEditingName(pkg.id);
     setTempName(pkg.name);
   };
@@ -712,12 +713,12 @@ export default function PackagesPage() {
                           <CardTitle className="text-lg">{pkg.name}</CardTitle>
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             onClick={(e) => startEditingName(pkg, e)}
-                            className="h-6 w-6 p-0 opacity-60 hover:opacity-100 transition-opacity"
+                            className="h-8 w-8 p-0 border-2 border-blue-500 bg-blue-100 hover:bg-blue-200"
                             title="Bewerk pakketnaam"
                           >
-                            <Edit className="w-3 h-3" />
+                            <Edit className="w-4 h-4 text-blue-600" />
                           </Button>
                         </div>
                       )}
@@ -767,12 +768,12 @@ export default function PackagesPage() {
                         <p className="text-sm text-gray-600 flex-1">{pkg.description}</p>
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="outline"
                           onClick={(e) => startEditingDescription(pkg, e)}
-                          className="h-6 w-6 p-0 opacity-60 hover:opacity-100 transition-opacity"
+                          className="h-8 w-8 p-0 border-2 border-green-500 bg-green-100 hover:bg-green-200"
                           title="Bewerk beschrijving"
                         >
-                          <Edit className="w-3 h-3" />
+                          <Edit className="w-4 h-4 text-green-600" />
                         </Button>
                       </div>
                     )}
