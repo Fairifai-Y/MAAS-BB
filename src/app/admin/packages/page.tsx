@@ -714,7 +714,8 @@ export default function PackagesPage() {
                             size="sm"
                             variant="ghost"
                             onClick={(e) => startEditingName(pkg, e)}
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-6 w-6 p-0 opacity-60 hover:opacity-100 transition-opacity"
+                            title="Bewerk pakketnaam"
                           >
                             <Edit className="w-3 h-3" />
                           </Button>
@@ -768,7 +769,8 @@ export default function PackagesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={(e) => startEditingDescription(pkg, e)}
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-6 w-6 p-0 opacity-60 hover:opacity-100 transition-opacity"
+                          title="Bewerk beschrijving"
                         >
                           <Edit className="w-3 h-3" />
                         </Button>
