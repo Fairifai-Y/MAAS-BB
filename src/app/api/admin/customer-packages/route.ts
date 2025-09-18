@@ -13,6 +13,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if this customer-package combination already exists
+    const existingCustomerPackage = await prisma.customer_packages.findFirst({
+      where: {
+        customerId,
+        packageId,
+        status: {
+          not: 'CANCELLED'
+        }
+      },
+      include: {
+        packages: true,
+        customers: {
+          include: {
+            users: true
+          }
+        }
+      }
+    });
+
+    if (existingCustomerPackage) {
+      return NextResponse.json(
+        { 
+          error: `Customer already has an active package "${existingCustomerPackage.packages.name}". Use a different package or cancel the existing one first.`,
+          existingPackage: existingCustomerPackage
+        },
+        { status: 409 }
+      );
+    }
+
     const customerPackage = await prisma.customer_packages.create({
       data: {
         id: `${customerId}-${packageId}-${Date.now()}`,

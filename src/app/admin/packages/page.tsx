@@ -87,6 +87,12 @@ export default function PackagesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  
+  // Inline editing states
+  const [editingName, setEditingName] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState<string | null>(null);
+  const [tempName, setTempName] = useState('');
+  const [tempDescription, setTempDescription] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
@@ -249,6 +255,21 @@ export default function PackagesPage() {
       return;
     }
 
+    // Check if customer already has a package with this name
+    const existingCustomerPackages = await fetch('/api/admin/customer-packages');
+    if (existingCustomerPackages.ok) {
+      const allCustomerPackages = await existingCustomerPackages.json();
+      const customerHasPackage = allCustomerPackages.some((cp: any) => 
+        cp.customerId === composeForm.customerId && 
+        cp.packages.name === composeForm.name
+      );
+      
+      if (customerHasPackage) {
+        alert(`De klant heeft al een pakket met de naam "${composeForm.name}". Kies een andere naam of bewerk het bestaande pakket.`);
+        return;
+      }
+    }
+
     // Bereken max uren en prijs dynamisch
     const calculatedMaxHours = composeForm.activities.reduce((sum, a) => {
       const activity = activityTemplates.find(at => at.id === a.activityTemplateId);
@@ -319,6 +340,14 @@ export default function PackagesPage() {
           setIsComposeDialogOpen(false);
           fetchPackages();
           fetchPackageActivities();
+          alert('Pakket succesvol aangemaakt!');
+        } else {
+          const errorData = await customerPackageResponse.json();
+          alert(`Fout bij koppelen van pakket: ${errorData.error}`);
+          // Clean up the created package if customer package creation failed
+          await fetch(`/api/packages/${newPackage.id}`, {
+            method: 'DELETE'
+          });
         }
       }
     } catch (error) {
@@ -480,6 +509,79 @@ export default function PackagesPage() {
     });
   };
 
+  // Inline editing functions
+  const startEditingName = (pkg: Package, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingName(pkg.id);
+    setTempName(pkg.name);
+  };
+
+  const startEditingDescription = (pkg: Package, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingDescription(pkg.id);
+    setTempDescription(pkg.description);
+  };
+
+  const saveNameEdit = async (pkg: Package) => {
+    if (tempName.trim() === '') {
+      alert('Pakketnaam mag niet leeg zijn');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/packages/${pkg.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...pkg,
+          name: tempName.trim()
+        })
+      });
+
+      if (response.ok) {
+        setEditingName(null);
+        fetchPackages(); // Refresh the packages list
+      } else {
+        const errorData = await response.json();
+        alert(`Fout bij bijwerken: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Failed to update package name:', error);
+      alert('Netwerkfout bij bijwerken van pakketnaam');
+    }
+  };
+
+  const saveDescriptionEdit = async (pkg: Package) => {
+    try {
+      const response = await fetch(`/api/packages/${pkg.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...pkg,
+          description: tempDescription.trim()
+        })
+      });
+
+      if (response.ok) {
+        setEditingDescription(null);
+        fetchPackages(); // Refresh the packages list
+      } else {
+        const errorData = await response.json();
+        alert(`Fout bij bijwerken: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Failed to update package description:', error);
+      alert('Netwerkfout bij bijwerken van beschrijving');
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingName(null);
+    setEditingDescription(null);
+    setTempName('');
+    setTempDescription('');
+  };
+
   const calculatePackageUsage = (packageId: string) => {
     const activities = getPackageActivities(packageId);
     const totalHours = activities.reduce((sum, pa) => {
@@ -565,10 +667,60 @@ export default function PackagesPage() {
             const activities = getPackageActivities(pkg.id);
             
             return (
-              <Card key={pkg.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openBuilderDialog(pkg)}>
+              <Card key={pkg.id} className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={(e) => {
+                // Only open builder if not editing
+                if (editingName !== pkg.id && editingDescription !== pkg.id) {
+                  openBuilderDialog(pkg);
+                }
+              }}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                    <div className="flex-1">
+                      {editingName === pkg.id ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={tempName}
+                            onChange={(e) => setTempName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                saveNameEdit(pkg);
+                              } else if (e.key === 'Escape') {
+                                cancelEdit();
+                              }
+                            }}
+                            className="text-lg font-semibold"
+                            autoFocus
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => saveNameEdit(pkg)}
+                            className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
+                          >
+                            <Save className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={cancelEdit}
+                            className="h-8 w-8 p-0"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => startEditingName(pkg, e)}
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                     <Badge className={pkg.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                       {pkg.isActive ? 'Actief' : 'Inactief'}
                     </Badge>
@@ -576,7 +728,52 @@ export default function PackagesPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <p className="text-sm text-gray-600">{pkg.description}</p>
+                    {editingDescription === pkg.id ? (
+                      <div className="flex items-start gap-2">
+                        <Textarea
+                          value={tempDescription}
+                          onChange={(e) => setTempDescription(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && e.ctrlKey) {
+                              saveDescriptionEdit(pkg);
+                            } else if (e.key === 'Escape') {
+                              cancelEdit();
+                            }
+                          }}
+                          className="text-sm text-gray-600 min-h-[60px]"
+                          autoFocus
+                        />
+                        <div className="flex flex-col gap-1">
+                          <Button
+                            size="sm"
+                            onClick={() => saveDescriptionEdit(pkg)}
+                            className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
+                          >
+                            <Save className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={cancelEdit}
+                            className="h-8 w-8 p-0"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <p className="text-sm text-gray-600 flex-1">{pkg.description}</p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => startEditingDescription(pkg, e)}
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2">
