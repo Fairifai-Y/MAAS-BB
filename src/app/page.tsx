@@ -227,7 +227,6 @@ export default function Home() {
               <div className="space-y-2">
                 <div className="text-gray-400 text-sm space-y-1">
                   <p>📧 info@fitchannel.com</p>
-                  <p>📞 +31 (0)20 123 4567</p>
                   <p>📍 Bergsingel 67</p>
                   <p>📍 7411 CN Deventer</p>
                 </div>
