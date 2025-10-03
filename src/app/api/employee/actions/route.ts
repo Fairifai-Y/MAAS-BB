@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
     
@@ -37,17 +37,33 @@ export async function GET() {
       );
     }
 
-    // Get actions for this employee - only current month for dashboard
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    // Get query parameters for month filtering
+    const { searchParams } = new URL(request.url);
+    const monthFilter = searchParams.get('month');
+    const yearFilter = searchParams.get('year');
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (monthFilter && yearFilter) {
+      // Use provided month and year
+      const month = parseInt(monthFilter) - 1; // JavaScript months are 0-indexed
+      const year = parseInt(yearFilter);
+      startDate = new Date(year, month, 1);
+      endDate = new Date(year, month + 1, 1);
+    } else {
+      // Default to current month
+      const now = new Date();
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    }
 
     const actions = await prisma.action.findMany({
       where: {
         ownerId: employee.id,
         createdAt: {
-          gte: startOfMonth,
-          lt: endOfMonth
+          gte: startDate,
+          lt: endDate
         }
       },
       include: {

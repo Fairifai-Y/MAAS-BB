@@ -75,6 +75,8 @@ export default function EmployeeActionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [monthFilter, setMonthFilter] = useState<string>('');
+  const [yearFilter, setYearFilter] = useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -104,11 +106,25 @@ export default function EmployeeActionsPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [monthFilter, yearFilter]);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
+      
+      // Build URL with month and year filters
+      let actionsUrl = '/api/employee/actions';
+      const params = new URLSearchParams();
+      if (monthFilter) params.append('month', monthFilter);
+      if (yearFilter) params.append('year', yearFilter);
+      if (params.toString()) {
+        actionsUrl += `?${params.toString()}`;
+      }
+      
       const [actionsResponse, customersResponse] = await Promise.all([
-        fetch('/api/employee/actions'),
+        fetch(actionsUrl),
         fetch('/api/admin/customers-dropdown')
       ]);
 
@@ -350,28 +366,89 @@ export default function EmployeeActionsPage() {
           </div>
 
           {/* Search and Filter */}
-          <div className="flex gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Zoek in acties..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="Zoek in acties..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ALL">Alle Statussen</option>
+                <option value="PLANNED">Gepland</option>
+                <option value="IN_PROGRESS">In Uitvoering</option>
+                <option value="COMPLETED">Voltooid</option>
+                <option value="CANCELLED">Geannuleerd</option>
+              </select>
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">Alle Statussen</option>
-              <option value="PLANNED">Gepland</option>
-              <option value="IN_PROGRESS">In Uitvoering</option>
-              <option value="COMPLETED">Voltooid</option>
-              <option value="CANCELLED">Geannuleerd</option>
-            </select>
+            
+            {/* Month and Year Filters */}
+            <div className="flex gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  Filter op periode:
+                  {monthFilter && yearFilter && (
+                    <span className="ml-2 text-blue-600">
+                      ({new Date(parseInt(yearFilter), parseInt(monthFilter) - 1).toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })})
+                    </span>
+                  )}
+                </span>
+              </div>
+              <select
+                value={monthFilter}
+                onChange={(e) => setMonthFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Alle Maanden</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maart</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Augustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              <select
+                value={yearFilter}
+                onChange={(e) => setYearFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Alle Jaren</option>
+                {Array.from({ length: 5 }, (_, i) => {
+                  const year = new Date().getFullYear() - i;
+                  return (
+                    <option key={year} value={year.toString()}>
+                      {year}
+                    </option>
+                  );
+                })}
+              </select>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setMonthFilter('');
+                  setYearFilter('');
+                }}
+                className="text-sm"
+              >
+                Reset Filter
+              </Button>
+            </div>
           </div>
 
           {/* Actions Grid */}
