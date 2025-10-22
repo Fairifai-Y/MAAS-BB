@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const exportFormat = searchParams.get('export');
+
     const actions = await prisma.action.findMany({
       include: {
         activity: {
@@ -28,6 +31,58 @@ export async function GET() {
         createdAt: 'desc'
       }
     });
+
+    // If export is requested, return CSV format
+    if (exportFormat === 'csv') {
+      const csvHeaders = [
+        'ID',
+        'Titel',
+        'Beschrijving',
+        'Geplande Uren',
+        'Werkelijke Uren',
+        'Status',
+        'Deadline',
+        'Voltooid Op',
+        'Aangemaakt Op',
+        'Bijgewerkt Op',
+        'Medewerker Naam',
+        'Medewerker Email',
+        'Klant Bedrijf',
+        'Klant Naam',
+        'Klant Email',
+        'Activiteit Beschrijving'
+      ];
+
+      const csvRows = actions.map(action => [
+        action.id,
+        action.title,
+        action.description || '',
+        action.plannedHours,
+        action.actualHours || '',
+        action.status,
+        action.dueDate ? new Date(action.dueDate).toLocaleDateString('nl-NL') : '',
+        action.completedAt ? new Date(action.completedAt).toLocaleDateString('nl-NL') : '',
+        new Date(action.createdAt).toLocaleDateString('nl-NL'),
+        new Date(action.updatedAt).toLocaleDateString('nl-NL'),
+        action.owner.users.name,
+        action.owner.users.email,
+        action.activity.customer_packages.customers.company,
+        action.activity.customer_packages.customers.users.name,
+        action.activity.customer_packages.customers.users.email,
+        action.activity.description
+      ]);
+
+      const csvContent = [csvHeaders, ...csvRows]
+        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      return new NextResponse(csvContent, {
+        headers: {
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': `attachment; filename="acties-export-${new Date().toISOString().split('T')[0]}.csv"`
+        }
+      });
+    }
 
     return NextResponse.json(actions);
   } catch (error) {

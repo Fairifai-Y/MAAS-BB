@@ -23,7 +23,8 @@ import {
   Plus,
   Calendar,
   Target,
-  AlertCircle
+  AlertCircle,
+  Download
 } from 'lucide-react';
 import AdminLayout from '@/components/admin-layout';
 
@@ -318,6 +319,29 @@ export default function ActionsPage() {
     }
   };
 
+  const downloadActions = async () => {
+    try {
+      const response = await fetch('/api/admin/actions?export=csv');
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `acties-export-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        alert('Fout bij downloaden van acties');
+      }
+    } catch (error) {
+      console.error('❌ Error downloading actions:', error);
+      alert('Netwerkfout bij downloaden van acties');
+    }
+  };
+
   return (
     <AdminLayout 
       title="Acties" 
@@ -338,10 +362,21 @@ export default function ActionsPage() {
               <h1 className="text-2xl font-bold text-gray-900">Acties</h1>
               <p className="text-gray-600">Beheer acties gekoppeld aan activiteiten</p>
             </div>
-            <Button onClick={openCreateDialog} className="bg-amber-600 hover:bg-amber-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Nieuwe Actie
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                onClick={downloadActions} 
+                variant="outline"
+                className="border-green-600 text-green-600 hover:bg-green-50"
+                title="Download alle acties als CSV bestand met medewerker en klant informatie"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download CSV ({actions.length} acties)
+              </Button>
+              <Button onClick={openCreateDialog} className="bg-amber-600 hover:bg-amber-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Nieuwe Actie
+              </Button>
+            </div>
           </div>
 
           {/* Search and Filter */}
