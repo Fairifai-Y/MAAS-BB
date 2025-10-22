@@ -73,7 +73,11 @@ export async function GET(request: NextRequest) {
       ]);
 
       const csvContent = [csvHeaders, ...csvRows]
-        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+        .map(row => row
+          .map(field => `"${String(field)
+            .replace(/\r?\n/g, ' ') // ensure single-line rows
+            .replace(/"/g, '""')}"`)
+          .join(','))
         .join('\n');
 
       return new NextResponse(csvContent, {
