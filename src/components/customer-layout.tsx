@@ -9,7 +9,8 @@ import {
   CheckSquare,
   Home,
   LayoutDashboard,
-  Settings
+  Settings,
+  CalendarDays
 } from 'lucide-react';
 import Logo from '@/components/ui/logo';
 import EmployeeGuard from '@/components/employee-guard';
@@ -33,6 +34,12 @@ const menuItems = [
     href: '/dashboard/actions',
     icon: CheckSquare,
     description: 'Mijn acties en taken'
+  },
+  {
+    name: 'Maandoverzicht',
+    href: '/dashboard/uren-per-klant',
+    icon: CalendarDays,
+    description: 'Uren per klant per maand'
   }
 ];
 
