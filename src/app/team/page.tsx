@@ -154,12 +154,7 @@ export default function TeamPage() {
 
       <section className="py-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {/* Tier 1: Board */}
-          <div className="w-full rounded-lg border-2 border-amber-200 bg-amber-50/90 px-6 py-4 text-center">
-            <p className="text-lg font-bold text-gray-900">BOARD</p>
-          </div>
-
-          {/* Tier 2: CEO */}
+          {/* CEO */}
           <div className="flex justify-center">
             <div className="flex flex-col items-center rounded-lg border-2 border-emerald-200 bg-emerald-50 p-6 text-center max-w-xs w-full">
               <div className="aspect-square w-full max-w-[100px] overflow-hidden rounded-lg bg-white/80">
