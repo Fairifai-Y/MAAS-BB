@@ -165,9 +165,9 @@ export default async function InvestorsPage({
               <Image
                 src="/logo_fitchannel.png"
                 alt="Fitchannel"
-                width={180}
-                height={56}
-                className="h-10 w-auto object-contain"
+                width={220}
+                height={70}
+                className="h-14 w-auto object-contain"
               />
               <span className="text-sm text-gray-500">Investor overview</span>
             </div>
