@@ -71,9 +71,7 @@ function CLevelBlock({ role }: { role: CLevelRole }) {
   const isExternal = role.external ?? false;
   const bg =
     isVacancy || isExternal
-      ? isExternal
-        ? 'bg-amber-100 border-amber-200'
-        : 'bg-rose-100 border-rose-200'
+      ? 'bg-amber-100 border-amber-200'
       : 'bg-emerald-50 border-emerald-200';
 
   return (
