@@ -4,7 +4,15 @@ import DynamicHeader from '@/components/dynamic-header';
 import { Button } from '@/components/ui/button';
 import { User, Home } from 'lucide-react';
 
-const TEAM = [
+type TeamMember = {
+  name: string;
+  title: string;
+  expertise: string;
+  image: string | null;
+  placeholder?: boolean;
+};
+
+const TEAM: TeamMember[] = [
   {
     name: 'Yuri',
     title: 'CEO',
@@ -49,7 +57,7 @@ const TEAM = [
     image: null,
     placeholder: true,
   },
-] as const;
+];
 
 function TeamCard({
   name,
