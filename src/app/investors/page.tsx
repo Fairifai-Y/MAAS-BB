@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { User, FileText, Users, LayoutDashboard, Banknote, Table, Lightbulb, FileCheck, Presentation, Search, Smartphone, Handshake } from 'lucide-react';
+import { User, FileText, Users, LayoutDashboard, Banknote, Table } from 'lucide-react';
 import { InvestorsNav } from './investors-nav';
 
 type CLevelRole = {
@@ -202,27 +202,17 @@ export default async function InvestorsPage({
           </div>
 
           {/* Roadmap */}
-          <div className="mt-10 rounded-lg border border-gray-200 bg-gray-900 p-6 sm:p-8 shadow-sm">
-            <h3 className="text-lg font-semibold text-white mb-8 text-center">Roadmap</h3>
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-4">
-              {[
-                { color: 'bg-sky-400', icon: Lightbulb, text: 'Grow to 100.000 users.' },
-                { color: 'bg-violet-400', icon: FileCheck, text: 'Finalize funding for fase 1. Grow to 200.000 users.' },
-                { color: 'bg-amber-400', icon: Presentation, text: 'European growth outside the Benelux. Grow to 300.000 users.' },
-                { color: 'bg-yellow-400', icon: Search, text: 'Grow to 400.000 users.' },
-                { color: 'bg-pink-400', icon: Smartphone, text: 'New funding round. Grow to 750.000 users.' },
-                { color: 'bg-teal-400', icon: Handshake, text: 'Launch in 2 new countries outside of Europe. Grow to 1.000.000 users.' },
-              ].map((milestone) => {
-                const Icon = milestone.icon;
-                return (
-                  <div key={milestone.text} className="flex flex-col items-center flex-1 min-w-[140px] max-w-[180px]">
-                    <div className={`${milestone.color} w-14 h-14 rounded-full flex items-center justify-center shadow-lg mb-2`}>
-                      <Icon className="w-6 h-6 text-gray-900" strokeWidth={2} />
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-300 text-center leading-tight">{milestone.text}</p>
-                  </div>
-                );
-              })}
+          <div className="mt-10 rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 px-6 pt-6">Roadmap</h3>
+            <div className="relative w-full">
+              <Image
+                src="/growth_users.png"
+                alt="Growth roadmap – 100k to 1M users"
+                width={1200}
+                height={400}
+                className="w-full h-auto object-contain"
+                sizes="(max-width: 768px) 100vw, 1200px"
+              />
             </div>
           </div>
         </section>
