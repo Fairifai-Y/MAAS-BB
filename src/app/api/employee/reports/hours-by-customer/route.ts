@@ -94,11 +94,25 @@ export async function GET(request: NextRequest) {
       orderBy: [{ date: 'asc' }, { createdAt: 'asc' }],
     });
 
-    // Aggregate by customer, then by employee
+    // Aggregate by customer, then by employee and collect activity details
     type EmpEntry = { employeeId: string; name: string; hours: number };
+    type ActivityEntry = {
+      id: string;
+      date: string;
+      description: string;
+      hours: number;
+      employeeId: string;
+      employeeName: string;
+    };
     const byCustomerMap = new Map<
       string,
-      { customerId: string; company: string; employees: Map<string, EmpEntry>; totalHours: number }
+      {
+        customerId: string;
+        company: string;
+        employees: Map<string, EmpEntry>;
+        totalHours: number;
+        activities: ActivityEntry[];
+      }
     >();
 
     for (const a of activities) {
@@ -112,6 +126,7 @@ export async function GET(request: NextRequest) {
           company,
           employees: new Map(),
           totalHours: 0,
+          activities: [],
         });
       }
 
@@ -125,12 +140,22 @@ export async function GET(request: NextRequest) {
       }
       entry.employees.get(empId)!.hours += hours;
       entry.totalHours += hours;
+
+      entry.activities.push({
+        id: a.id,
+        date: a.date.toISOString(),
+        description: a.description,
+        hours,
+        employeeId: empId,
+        employeeName: name,
+      });
     }
 
     const byCustomer = Array.from(byCustomerMap.values()).map((entry) => ({
       customerId: entry.customerId,
       company: entry.company,
       employees: Array.from(entry.employees.values()).sort((a, b) => b.hours - a.hours),
+      activities: entry.activities,
       totalHours: Math.round(entry.totalHours * 100) / 100,
     }));
 

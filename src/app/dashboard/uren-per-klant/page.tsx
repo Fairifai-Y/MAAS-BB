@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar, Building2, Users, Clock, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import CustomerLayout from '@/components/customer-layout';
 
@@ -17,10 +18,20 @@ interface EmployeeHours {
   hours: number;
 }
 
+interface ActivityDetail {
+  id: string;
+  date: string;
+  description: string;
+  hours: number;
+  employeeId: string;
+  employeeName: string;
+}
+
 interface CustomerHours {
   customerId: string;
   company: string;
   employees: EmployeeHours[];
+  activities: ActivityDetail[];
   totalHours: number;
 }
 
@@ -34,6 +45,7 @@ export default function UrenPerKlantPage() {
   const [data, setData] = useState<HoursByCustomerResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerHours | null>(null);
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -151,38 +163,51 @@ export default function UrenPerKlantPage() {
                     </p>
                   </CardHeader>
                   <CardContent className="pt-4">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="border-b border-gray-200 text-sm text-gray-500">
-                          <th className="pb-2 font-medium">Medewerker</th>
-                          <th className="pb-2 text-right font-medium">Uren</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cust.employees.map((emp) => (
-                          <tr key={emp.employeeId} className="border-b border-gray-100">
-                            <td className="py-2">
-                              <span className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-gray-400" />
-                                {emp.name}
-                              </span>
-                            </td>
-                            <td className="py-2 text-right font-medium">
-                              <span className="flex items-center justify-end gap-1">
-                                <Clock className="h-4 w-4 text-gray-400" />
-                                {emp.hours.toFixed(1)}
-                              </span>
-                            </td>
+                    <div className="mb-4">
+                      <table className="w-full text-left">
+                        <thead>
+                          <tr className="border-b border-gray-200 text-sm text-gray-500">
+                            <th className="pb-2 font-medium">Medewerker</th>
+                            <th className="pb-2 text-right font-medium">Uren</th>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="border-t-2 border-gray-200 font-medium text-gray-900">
-                          <td className="pt-2">Totaal</td>
-                          <td className="pt-2 text-right">{cust.totalHours.toFixed(1)} uur</td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {cust.employees.map((emp) => (
+                            <tr key={emp.employeeId} className="border-b border-gray-100">
+                              <td className="py-2">
+                                <span className="flex items-center gap-2">
+                                  <Users className="h-4 w-4 text-gray-400" />
+                                  {emp.name}
+                                </span>
+                              </td>
+                              <td className="py-2 text-right font-medium">
+                                <span className="flex items-center justify-end gap-1">
+                                  <Clock className="h-4 w-4 text-gray-400" />
+                                  {emp.hours.toFixed(1)}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t-2 border-gray-200 font-medium text-gray-900">
+                            <td className="pt-2">Totaal</td>
+                            <td className="pt-2 text-right">{cust.totalHours.toFixed(1)} uur</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    {cust.activities && cust.activities.length > 0 && (
+                      <div className="flex justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedCustomer(cust)}
+                        >
+                          Bekijk specificatie
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -194,6 +219,72 @@ export default function UrenPerKlantPage() {
             die van collega’s getoond, zodat je dit overzicht naar de klant kunt verantwoorden
             (bijv. via een screenshot).
           </p>
+
+          {/* Details dialoog met specificatie per klant/maand */}
+          <Dialog
+            open={!!selectedCustomer}
+            onOpenChange={(open) => {
+              if (!open) setSelectedCustomer(null);
+            }}
+          >
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+              {selectedCustomer && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>
+                      Specificatie uren – {selectedCustomer.company} ({monthLabel})
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4 space-y-3">
+                    <table className="w-full text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200 text-xs font-medium text-gray-500">
+                          <th className="py-2">Datum</th>
+                          <th className="py-2">Medewerker</th>
+                          <th className="py-2">Omschrijving</th>
+                          <th className="py-2 text-right">Uren</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedCustomer.activities
+                          .slice()
+                          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                          .map((act) => (
+                            <tr key={act.id} className="border-b border-gray-100 align-top">
+                              <td className="py-2 text-xs text-gray-600 whitespace-nowrap">
+                                {new Date(act.date).toLocaleDateString('nl-NL')}
+                              </td>
+                              <td className="py-2 text-xs text-gray-700 whitespace-nowrap">
+                                {act.employeeName}
+                              </td>
+                              <td className="py-2 text-xs text-gray-700">
+                                {act.description}
+                              </td>
+                              <td className="py-2 text-xs text-right text-gray-900 whitespace-nowrap">
+                                {act.hours.toFixed(1)}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t border-gray-200 font-medium text-gray-900 text-xs">
+                          <td className="pt-2" colSpan={3}>
+                            Totaal
+                          </td>
+                          <td className="pt-2 text-right">
+                            {selectedCustomer.activities
+                              .reduce((sum, a) => sum + a.hours, 0)
+                              .toFixed(1)}{' '}
+                            uur
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
         </>
       )}
     </CustomerLayout>
