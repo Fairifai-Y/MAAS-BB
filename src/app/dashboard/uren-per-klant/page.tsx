@@ -25,6 +25,13 @@ interface ActivityDetail {
   hours: number;
   employeeId: string;
   employeeName: string;
+  activityType?: string;
+}
+
+interface ActivityTypeGroup {
+  activityType: string;
+  totalHours: number;
+  activities: ActivityDetail[];
 }
 
 interface CustomerHours {
@@ -32,6 +39,7 @@ interface CustomerHours {
   company: string;
   employees: EmployeeHours[];
   activities: ActivityDetail[];
+  activityTypes?: ActivityTypeGroup[];
   totalHours: number;
 }
 
@@ -197,6 +205,38 @@ export default function UrenPerKlantPage() {
                         </tfoot>
                       </table>
                     </div>
+                    
+                    {/* Activity types with descriptions */}
+                    {cust.activityTypes && cust.activityTypes.length > 0 && (
+                      <div className="mb-4 space-y-4 border-t border-gray-200 pt-4">
+                        {cust.activityTypes.map((typeGroup) => (
+                          <div key={typeGroup.activityType} className="space-y-2">
+                            <div className="flex items-center justify-between border-b border-gray-200 pb-1">
+                              <h4 className="font-medium text-gray-900 text-sm">
+                                {typeGroup.activityType}
+                              </h4>
+                              <span className="text-sm font-medium text-gray-700">
+                                {typeGroup.totalHours.toFixed(1)} uur
+                              </span>
+                            </div>
+                            <div className="ml-4 space-y-1">
+                              {typeGroup.activities.map((act) => (
+                                <div
+                                  key={act.id}
+                                  className="flex items-start justify-between text-xs text-gray-600"
+                                >
+                                  <span className="flex-1 pr-4">{act.description}</span>
+                                  <span className="whitespace-nowrap font-medium text-gray-900">
+                                    {act.hours.toFixed(1)}u
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
                     {cust.activities && cust.activities.length > 0 && (
                       <div className="flex justify-end">
                         <Button
@@ -204,7 +244,7 @@ export default function UrenPerKlantPage() {
                           size="sm"
                           onClick={() => setSelectedCustomer(cust)}
                         >
-                          Bekijk specificatie
+                          Bekijk volledige specificatie
                         </Button>
                       </div>
                     )}

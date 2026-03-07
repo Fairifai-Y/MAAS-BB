@@ -83,6 +83,15 @@ export async function GET(request: NextRequest) {
                 users: { select: { name: true, email: true } },
               },
             },
+            packages: {
+              include: {
+                packageActivities: {
+                  include: {
+                    activityTemplate: true,
+                  },
+                },
+              },
+            },
           },
         },
         employees: {
@@ -103,6 +112,12 @@ export async function GET(request: NextRequest) {
       hours: number;
       employeeId: string;
       employeeName: string;
+      activityType?: string; // Activity template name
+    };
+    type ActivityTypeGroup = {
+      activityType: string;
+      totalHours: number;
+      activities: ActivityEntry[];
     };
     const byCustomerMap = new Map<
       string,
@@ -112,6 +127,7 @@ export async function GET(request: NextRequest) {
         employees: Map<string, EmpEntry>;
         totalHours: number;
         activities: ActivityEntry[];
+        activityTypes: Map<string, ActivityTypeGroup>;
       }
     >();
 
@@ -127,6 +143,7 @@ export async function GET(request: NextRequest) {
           employees: new Map(),
           totalHours: 0,
           activities: [],
+          activityTypes: new Map(),
         });
       }
 
@@ -141,14 +158,67 @@ export async function GET(request: NextRequest) {
       entry.employees.get(empId)!.hours += hours;
       entry.totalHours += hours;
 
-      entry.activities.push({
+      // Try to match activity to activity template
+      // The description field might contain the template name or be a detailed description
+      let activityType: string | undefined;
+      const packageActivities = a.customer_packages.packages?.packageActivities || [];
+      
+      // Try exact match first
+      const exactMatch = packageActivities.find(
+        (pa) => pa.activityTemplate.name === a.description
+      );
+      
+      if (exactMatch) {
+        activityType = exactMatch.activityTemplate.name;
+      } else {
+        // Try if description starts with template name (common pattern)
+        const startsWithMatch = packageActivities.find(
+          (pa) => a.description.toLowerCase().startsWith(pa.activityTemplate.name.toLowerCase())
+        );
+        
+        if (startsWithMatch) {
+          activityType = startsWithMatch.activityTemplate.name;
+        } else {
+          // Try if template name is contained in description
+          const containsMatch = packageActivities.find(
+            (pa) => a.description.toLowerCase().includes(pa.activityTemplate.name.toLowerCase())
+          );
+          
+          if (containsMatch) {
+            activityType = containsMatch.activityTemplate.name;
+          } else {
+            // If no match found, use description as activity type
+            // This handles cases where activities don't match templates exactly
+            activityType = a.description;
+          }
+        }
+      }
+
+      const activityEntry: ActivityEntry = {
         id: a.id,
         date: a.date.toISOString(),
         description: a.description,
         hours,
         employeeId: empId,
         employeeName: name,
-      });
+        activityType,
+      };
+
+      entry.activities.push(activityEntry);
+
+      // Group by activity type
+      if (activityType) {
+        if (!entry.activityTypes.has(activityType)) {
+          entry.activityTypes.set(activityType, {
+            activityType,
+            totalHours: 0,
+            activities: [],
+          });
+        }
+        const typeGroup = entry.activityTypes.get(activityType)!;
+        typeGroup.totalHours += hours;
+        typeGroup.activities.push(activityEntry);
+      }
     }
 
     const byCustomer = Array.from(byCustomerMap.values()).map((entry) => ({
@@ -156,6 +226,13 @@ export async function GET(request: NextRequest) {
       company: entry.company,
       employees: Array.from(entry.employees.values()).sort((a, b) => b.hours - a.hours),
       activities: entry.activities,
+      activityTypes: Array.from(entry.activityTypes.values())
+        .map((typeGroup) => ({
+          activityType: typeGroup.activityType,
+          totalHours: Math.round(typeGroup.totalHours * 100) / 100,
+          activities: typeGroup.activities,
+        }))
+        .sort((a, b) => b.totalHours - a.totalHours),
       totalHours: Math.round(entry.totalHours * 100) / 100,
     }));
 
